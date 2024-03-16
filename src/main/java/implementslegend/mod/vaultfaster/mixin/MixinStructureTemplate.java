@@ -10,7 +10,9 @@ import iskallia.vault.core.world.processor.ProcessorContext;
 import iskallia.vault.core.world.processor.tile.*;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.StructureTemplate;
+import iskallia.vault.init.ModBlocks;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -20,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 /*
-* applies tile mapper when processing all tiles except spawners
+* applies tile mapper when processing all tiles except blacklisted
 * */
 @SuppressWarnings("ALL")
 @Mixin(StructureTemplate.class)
@@ -48,7 +50,14 @@ public class MixinStructureTemplate {
                 tile = null;
                 return tile;
             }
-            var isSpawner = ((IndexedBlock)tile.getState().getBlock()).getRegistryIndex()==getSpawnerId();
+            var tileID = ((IndexedBlock)tile.getState().getBlock()).getRegistryIndex();
+            //some blocks would not be processed correctly
+            var dontUseTileMapper = tileID==getSpawnerId()/*order would be messed up and mobs would not spawn*/ ||
+                    tileID == ((IndexedBlock)ModBlocks.GOD_ALTAR).getRegistryIndex() /*you wold get template challange*/ ||
+                    tileID==((IndexedBlock) Blocks.WHITE_CONCRETE).getRegistryIndex() || //some room-specific stuff seems to be broken
+                    tileID==((IndexedBlock) Blocks.LIME_GLAZED_TERRACOTTA).getRegistryIndex() ||
+                    tileID==((IndexedBlock) Blocks.GRAY_GLAZED_TERRACOTTA).getRegistryIndex() ||
+                    tileID==((IndexedBlock) Blocks.COMMAND_BLOCK).getRegistryIndex();
 
             for(Processor<PartialTile> processor : settings.getTileProcessors()) {
 
@@ -59,12 +68,12 @@ public class MixinStructureTemplate {
                 if((processor instanceof TargetTileProcessor<?> ||
                         processor instanceof VaultLootTileProcessor ||
                         processor instanceof ReferenceTileProcessor ||
-                        processor instanceof LeveledTileProcessor) && !isSpawner
+                        processor instanceof LeveledTileProcessor) && !dontUseTileMapper
                 ); else
                     processNotTargetted(processor,tile,settings.getProcessorContext());
             }
 
-            if(!isSpawner)tile=((TileMapperContainer)settings).getTileMapper().mapBlock(tile,settings.getProcessorContext());
+            if(!dontUseTileMapper)tile=((TileMapperContainer)settings).getTileMapper().mapBlock(tile,settings.getProcessorContext());
             /*
             for(Processor<PartialTile> processor : settings.getTileProcessors()) {
 

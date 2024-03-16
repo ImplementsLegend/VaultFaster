@@ -14,6 +14,7 @@ license="${mod_license}"
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
+issueTrackerURL="https://github.com/ImplementsLegend/VaultFaster/issues" #optional
 # The modid of the mod
 modId="${mod_id}" #mandatory
 # The version number of the mod
