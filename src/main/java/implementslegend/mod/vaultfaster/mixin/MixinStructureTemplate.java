@@ -57,7 +57,8 @@ public class MixinStructureTemplate {
                     tileID==((IndexedBlock) Blocks.WHITE_CONCRETE).getRegistryIndex() || //some room-specific stuff seems to be broken
                     tileID==((IndexedBlock) Blocks.LIME_GLAZED_TERRACOTTA).getRegistryIndex() ||
                     tileID==((IndexedBlock) Blocks.GRAY_GLAZED_TERRACOTTA).getRegistryIndex() ||
-                    tileID==((IndexedBlock) Blocks.COMMAND_BLOCK).getRegistryIndex();
+                    tileID==((IndexedBlock) Blocks.COMMAND_BLOCK).getRegistryIndex() ||
+                    tileID==((IndexedBlock) ModBlocks.PLACEHOLDER).getRegistryIndex();
 
             for(Processor<PartialTile> processor : settings.getTileProcessors()) {
 
