@@ -8,6 +8,7 @@
     "MeasurePerformance",
     "ChunkAccessAccessor",
     "FixObjectives",
+    "HeraldFix",
     "JigsawRootAccessor",
     "LevelChunkAccessor",
     "MixinBlockRegistryIndex",
