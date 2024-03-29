@@ -8,10 +8,15 @@ import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.core.world.template.PlacementSettings
 import iskallia.vault.core.world.template.Template
 import iskallia.vault.init.ModBlocks
+import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.SectionPos
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Clearable
+import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
@@ -26,6 +31,11 @@ import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.level.lighting.LevelLightEngine
 import net.minecraftforge.fml.loading.FMLEnvironment
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+import kotlin.collections.LinkedHashSet
 
 
 private infix fun Int.rangeUntilWidth(i: Int): IntRange = this until (this+i)
@@ -85,10 +95,24 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
     }
 }
 
+private val delayExecutor = CompletableFuture.delayedExecutor(500,TimeUnit.MILLISECONDS,Util.backgroundExecutor())
+
 fun LevelAccessor.setBlocks(blocks: List<Pair<BlockPos, BlockState>>){
+    val positions = LinkedHashSet<ChunkPos>()
     blocks.groupBy { SectionPos.of(it.first) }.forEach { (sectionPos, pairs) ->
         val chunk = getChunk(sectionPos.x, sectionPos.z)
+        positions+=chunk.pos
         chunk.setBlocks((sectionPos.y-(chunk.minBuildHeight shr 4)),pairs)
+    }
+    if (this is ServerLevel) { //stuff was not getting updated correctly
+        positions.forEach { pos ->
+            delayExecutor.execute { //no delay might be enough on slow computers
+                this.players().forEach { player ->
+                    val lc: LevelChunk = getChunk(pos.x, pos.z)
+                    player.connection.send(ClientboundLevelChunkWithLightPacket(lc, lightEngine, null, null, false))
+                }
+            }
+        }
     }
 }
 
