@@ -104,40 +104,49 @@ class TileMapper {
 
     }
 
-    fun addProcessor(processor: TileProcessor){
+    @JvmOverloads
+    fun addProcessor(processor: TileProcessor,start:Boolean=false){
         try {
             if (processor is SpawnerTileProcessor || processor is WeightedTileProcessor) {
-                addProcessor((processor as ProcessorPredicateAccessor).predicate, processor)
+                addProcessor((processor as ProcessorPredicateAccessor).predicate, processor,start=start)
             } else if (processor is BernoulliWeightedTileProcessor) {
-                addProcessor(processor.target, processor)
+                addProcessor(processor.target, processor,start=start)
             } else if (processor is VaultLootTileProcessor) {
-                addProcessor(PartialBlock.of(ModBlocks.PLACEHOLDER), processor)
+                addProcessor(PartialBlock.of(ModBlocks.PLACEHOLDER), processor,start=start)
             } else if (processor is SpawnerElementTileProcessor) {
-                addProcessor(PartialBlock.of(ForgeRegistries.BLOCKS.getValue(ResourceLocation("ispawner","spawner"))), processor)
+                addProcessor(PartialBlock.of(ForgeRegistries.BLOCKS.getValue(ResourceLocation("ispawner","spawner"))), processor,start=start)
             } else if (processor is LeveledTileProcessor) {
-                addProcessor(LeveledPredicate(processor),processor)
+                addProcessor(LeveledPredicate(processor),processor,start=start)
             } else {
-                addUnconditional(processor)
+                addUnconditional(processor,start=start)
             }
         } catch (th: UnconditionalPredicate) {
-            addUnconditional(processor)
+            addUnconditional(processor,start=start)
         }
 
     }
 
-    private fun addUnconditional(processor: TileProcessor) {
+    private fun addUnconditional(processor: TileProcessor,start:Boolean=false) {
         if(processor is ReferenceTileProcessor) {
             couldContainReferences.set(true)
             couldContainReferencesBadSync = true
         }
-        unconditional += processor
+        unconditional.let {
+                list->
+            if(start)list.add(0,processor)
+            else list+=processor
+        }
     }
 
-    private fun addProcessor(predicate:TilePredicate, processor: TileProcessor){
+    private fun addProcessor(predicate:TilePredicate, processor: TileProcessor,start:Boolean=false){
         getIndices(predicate).takeIf { indices -> indices.none { it<0 } }?.forEach {
-            mappings[it]+=processor
+            mappings[it].let {
+                list->
+                if(start)list.add(0,processor)
+                else list+=processor
+            }
         }?: run {
-            addUnconditional(processor)
+            addUnconditional(processor,start)
         }
     }
 
@@ -191,6 +200,7 @@ class TileMapper {
             else -> throw UnconditionalPredicate()
         }.distinct()
     }
+
 }
 
 private class UnconditionalPredicate:Throwable()
