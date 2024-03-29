@@ -5,13 +5,14 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "vaultfaster.refmap.json",
   "mixins": [
-    "MeasurePerformance",
     "ChunkAccessAccessor",
     "FixObjectives",
     "HeraldFix",
     "JigsawRootAccessor",
     "LevelChunkAccessor",
+    "MeasurePerformance",
     "MixinBlockRegistryIndex",
+    "MixinJigsawCorrectAddProcessors",
     "MixinLeveledProcessor",
     "MixinPalette",
     "MixinPartBlockProperties",
@@ -26,8 +27,10 @@
     "PartialBlockRegistryIndex",
     "PredicateIdAccessor",
     "ProcessorPredicateAccessor",
+    "ProperShutdown",
     "ProtoChunkAccessor",
-    "TileGroupsAccessor"
+    "TileGroupsAccessor",
+    "VirtualWorldsExecutorAccessor"
   ],
   "client": [
   ],
