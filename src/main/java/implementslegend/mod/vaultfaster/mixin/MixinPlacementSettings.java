@@ -54,7 +54,7 @@ public class MixinPlacementSettings implements ExtendedPlacementSettings {
         ) mapper.addProcessor((TileProcessor) processor);
         else if(processor instanceof TileProcessor tileProcessor) nonmappedProcessors.add(tileProcessor);
     }
-    @Inject(method = "copy",locals = LocalCapture.CAPTURE_FAILHARD,at = @At(value = "INVOKE", shift = At.Shift.BY, by = 2,opcode = Opcodes.INVOKESPECIAL,ordinal = 0,target = "Liskallia/vault/core/world/template/PlacementSettings;<init>(Liskallia/vault/core/world/processor/ProcessorContext;)V"),remap = false)
+    @Inject(method = "copy",locals = LocalCapture.CAPTURE_FAILHARD,at = @At(value = "FIELD", opcode = Opcodes.GETFIELD, target = "Liskallia/vault/core/world/template/PlacementSettings;flags:I"/*,target = "Liskallia/vault/core/world/template/PlacementSettings;<init>(Liskallia/vault/core/world/processor/ProcessorContext;)V"*/),remap = false)
     private void copyMapper(CallbackInfoReturnable<PlacementSettings> cir, PlacementSettings nw){
 
         var tileMapper = ((TileMapperContainer) nw).getTileMapper();
