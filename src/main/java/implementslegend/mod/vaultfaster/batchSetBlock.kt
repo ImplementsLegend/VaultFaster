@@ -35,7 +35,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import java.util.stream.Stream
+import java.util.stream.StreamSupport
 import kotlin.collections.LinkedHashSet
+import kotlin.streams.toList
 
 
 private infix fun Int.rangeUntilWidth(i: Int): IntRange = this until (this+i)
@@ -61,15 +64,15 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
     val nl = ArrayList<Pair<BlockPos,BlockState>>(4096)
     val tiles = ArrayList<Pair<BlockPos,CompoundTag>>(4096)
     blocks.forEachRemaining{
-        tile->
+            tile->
         val state = tile.state
-                .asWhole()
-                .orElseGet {
-                    if (FMLEnvironment.production) {
-                            VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
-                        }
-                        ModBlocks.ERROR_BLOCK.defaultBlockState()
-                    }
+            .asWhole()
+            .orElseGet {
+                if (FMLEnvironment.production) {
+                    VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
+                }
+                ModBlocks.ERROR_BLOCK.defaultBlockState()
+            }
         if (tile.entity.asWhole().isPresent) {
             val blockentity = getBlockEntity(tile.pos)
             Clearable.tryClear(blockentity)
@@ -82,7 +85,7 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
     }
     setBlocks(nl)
     tiles.forEach {
-        (pos,tile)->
+            (pos,tile)->
         try {
             val blockEntity = getBlockEntity(pos)
 
@@ -92,6 +95,46 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
             }
 
         } catch (e:Exception){setBlock(pos,ModBlocks.ERROR_BLOCK.defaultBlockState(),0)}
+    }
+}
+
+
+fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, settings: PlacementSettings, result_:Any){
+    val result = TileResult(result_)
+    val (nl,tiles) = blocks_.collect({
+        ArrayList<Pair<BlockPos,BlockState>>(256) to ArrayList<Pair<PartialTile,CompoundTag>>(256)
+    },{
+        (nl,tiles),tile->
+        val state = tile.state
+            .asWhole()
+            .orElseGet {
+                if (FMLEnvironment.production) {
+                    VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
+                }
+                ModBlocks.ERROR_BLOCK.defaultBlockState()
+            }
+        if (tile.entity.asWhole().isPresent) {
+            val blockentity = getBlockEntity(tile.pos)
+            Clearable.tryClear(blockentity)
+        }
+        nl+=tile.pos to state
+        tile.entity.asWhole().ifPresent{
+            tiles+=tile to it
+        }
+    },{(nl1,tiles1),(nl2,tiles2)->nl1.apply { addAll(nl2) } to tiles1.apply { addAll(tiles2) }})
+    setBlocks(nl)
+    tiles.forEach {
+        (partial,data)->
+        try {
+            val blockEntity = getBlockEntity(partial.pos)
+
+            blockEntity?.load(data)
+            if (blockEntity is CommandBlockEntity) {
+                scheduleTick(partial.pos, Blocks.COMMAND_BLOCK, 1)
+            }
+            result.placedBlockEntities.add(partial)
+
+        } catch (e:Exception){setBlock(partial.pos,ModBlocks.ERROR_BLOCK.defaultBlockState(),0)}
     }
 }
 
