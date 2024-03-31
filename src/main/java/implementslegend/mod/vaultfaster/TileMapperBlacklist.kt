@@ -8,12 +8,15 @@ import net.minecraftforge.registries.ForgeRegistries
 import java.util.*
 
 object TileMapperBlacklist {
+    private val spawnerBlock by lazy {
+        ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse("ispawner:spawner"))
+    }
 
+
+    //found reason why all these blocks were broken so this is not in use anymore
     val blacklist by lazy {
-        val spawner = ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse("ispawner:spawner"))?.let { arrayOf(it) }?: arrayOf()
-
-
         BitSet(BLOCKS.size()).apply {
+            val spawner = spawnerBlock?.let { arrayOf(it) }?: arrayOf()
             val blocks = arrayOf<BlockBehaviour>(
                 *spawner,
                 ModBlocks.GOD_ALTAR,
@@ -29,6 +32,6 @@ object TileMapperBlacklist {
         }
     }
 
-    fun isBlacklisted(block:Int):Boolean = if(block<0)false else blacklist.get(block)
+    fun isBlacklisted(block:Int):Boolean = block == ((spawnerBlock as IndexedBlock?)?.registryIndex ?: Int.MAX_VALUE)//if(block<0)false else blacklist.get(block)
 
 }

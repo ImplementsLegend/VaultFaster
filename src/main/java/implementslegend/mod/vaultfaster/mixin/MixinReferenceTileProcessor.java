@@ -10,6 +10,7 @@ import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.processor.Palette;
 import iskallia.vault.core.world.processor.ProcessorContext;
 import iskallia.vault.core.world.processor.tile.ReferenceTileProcessor;
+import iskallia.vault.core.world.processor.tile.TileProcessor;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
@@ -33,7 +34,12 @@ public class MixinReferenceTileProcessor implements CachedPaletteContainer {
 
     @Overwrite(remap = false)
     public PartialTile process(PartialTile value, ProcessorContext context) {
-        value=((TileMapperContainer)getCachedPalette(context)).getTileMapper().mapBlock(value, context);
+        var palette = getCachedPalette(context);
+
+        for(TileProcessor child : palette.getTileProcessors()) {
+            value = child.process(value, context);
+            if (value == null) return null;
+        }
         return value;
     }
 
@@ -46,7 +52,7 @@ public class MixinReferenceTileProcessor implements CachedPaletteContainer {
             Version version = context.getVault() == null ? Version.latest() : (Version)context.getVault().get(Vault.VERSION);
             if(version!=cachedVersion){
                 cachedVersion=version;
-                palette = (Palette)((PaletteKey) VaultRegistry.PALETTE.getKey(this.id)).get(version);
+                palette =  VaultRegistry.PALETTE.getKey(this.id).get(version);
                 cachedPalette=palette;
             }
         }

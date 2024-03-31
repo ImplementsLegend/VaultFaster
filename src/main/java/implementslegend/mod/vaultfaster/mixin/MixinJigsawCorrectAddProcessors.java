@@ -32,11 +32,11 @@ public class MixinJigsawCorrectAddProcessors {
     private static  void addCorrectly(Rotation rotation, BlockPos target, BlockPos offset, TemplateEntry entry, Version version, PlacementSettings settings, CallbackInfo ci){
 
         for(PaletteKey palette : Lists.reverse(Lists.newArrayList(entry.getPalettes()))) {
-            for(TileProcessor tileProcessor : ((Palette)palette.get(version)).getTileProcessors()) {
+            for(TileProcessor tileProcessor :Lists.reverse( (palette.get(version)).getTileProcessors())) {
                 ((ExtendedPlacementSettings)settings).addProcessorAtBegining(tileProcessor);
             }
 
-            for(EntityProcessor var15x : ((Palette)palette.get(version)).getEntityProcessors()) {
+            for(EntityProcessor var15x : Lists.reverse((palette.get(version)).getEntityProcessors())) {
                 settings.getEntityProcessors().add(0, var15x);
             }
         }

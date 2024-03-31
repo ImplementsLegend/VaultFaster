@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 * trying to apply every tile processor to every tile was just too taxing and way to reduce number of considered processors was required
 * this is probably the most important optimisation in the entire mod
 *
+* todo add ReferenceTTile processor to all so its content can be inlined correctly
 * */
 
 class TileMapper {
