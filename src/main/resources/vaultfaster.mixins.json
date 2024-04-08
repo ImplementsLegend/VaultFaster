@@ -27,10 +27,8 @@
     "PartialBlockRegistryIndex",
     "PredicateIdAccessor",
     "ProcessorPredicateAccessor",
-    "ProperShutdown",
     "ProtoChunkAccessor",
-    "TileGroupsAccessor",
-    "VirtualWorldsExecutorAccessor"
+    "TileGroupsAccessor"
   ],
   "client": [
   ],
