@@ -101,7 +101,7 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
 
 fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, settings: PlacementSettings, result_:Any){
     val result = TileResult(result_)
-    val (nl,tiles) = blocks_.collect({
+    val (nl,tiles) = blocks_.filter { it!==null }.collect({
         ArrayList<Pair<BlockPos,BlockState>>(256) to ArrayList<Pair<PartialTile,CompoundTag>>(256)
     },{
         (nl,tiles),tile->
