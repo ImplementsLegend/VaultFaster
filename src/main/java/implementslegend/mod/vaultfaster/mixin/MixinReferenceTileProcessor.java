@@ -50,9 +50,9 @@ public class MixinReferenceTileProcessor implements CachedPaletteContainer {
         if (cachedVersion==null || cachedPalette==null || !lastVault.refersTo(context.getVault())) {
             lastVault = new PhantomReference<>(context.getVault(),null);
             Version version = context.getVault() == null ? Version.latest() : (Version)context.getVault().get(Vault.VERSION);
-            if(version!=cachedVersion){
+            if(version!=cachedVersion || palette==null){
                 cachedVersion=version;
-                palette =  VaultRegistry.PALETTE.getKey(this.id).get(version);
+                palette = VaultRegistry.PALETTE.getKey(this.id).get(version);
                 cachedPalette=palette;
             }
         }
