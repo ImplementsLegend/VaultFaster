@@ -11,6 +11,9 @@ object TileMapperBlacklist {
     private val spawnerBlock by lazy {
         ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse("ispawner:spawner"))
     }
+    private val chest by lazy {
+        ModBlocks.PLACEHOLDER
+    }
 
 
     //found reason why all these blocks were broken so this is not in use anymore
@@ -32,6 +35,6 @@ object TileMapperBlacklist {
         }
     }
 
-    fun isBlacklisted(block:Int):Boolean = block == ((spawnerBlock as IndexedBlock?)?.registryIndex ?: Int.MAX_VALUE)//if(block<0)false else blacklist.get(block)
+    fun isBlacklisted(block:Int):Boolean = (block == ((spawnerBlock as IndexedBlock?)?.registryIndex ?: Int.MAX_VALUE)) or (block == (chest as IndexedBlock).registryIndex) //if(block<0)false else blacklist.get(block)
 
 }
