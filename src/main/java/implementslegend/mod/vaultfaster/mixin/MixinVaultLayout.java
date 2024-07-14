@@ -1,9 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.BatchSetBlockKt;
-import implementslegend.mod.vaultfaster.ObjectiveTemplateData;
-import implementslegend.mod.vaultfaster.ObjectiveTemplateEvent;
-import implementslegend.mod.vaultfaster.SectionBlocksKt;
+import implementslegend.mod.vaultfaster.*;
 import iskallia.vault.core.data.DataObject;
 import iskallia.vault.core.data.key.FieldKey;
 import iskallia.vault.core.event.Event;
@@ -20,8 +17,12 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -51,10 +52,31 @@ public abstract class MixinVaultLayout {
 
 
     /*calls event to change template for objective placeholder since the old method is removed*/
+    /*
     @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z",ordinal = 0),remap = false)
     boolean invokeObjectiveFixEvent(List instance, Object e){
-        var data = new ObjectiveTemplateData((JigsawTemplate) e);
+        var data = new ObjectiveTemplateData((JigsawTemplate) e,);
         ObjectiveTemplateEvent.INSTANCE.invoke(data);
         return instance.add(data.getTemplate());
+    }*/
+
+    @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z",ordinal = 0),remap = false)
+    boolean invokeObjectiveFixEvent(List instance, Object e){
+        return true;
+    }
+
+    @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Liskallia/vault/core/random/RandomSource;nextFloat()F"),remap = false)
+    float invokeObjectiveFixEvent(RandomSource instance){
+        return 1f;
+    }
+
+
+    @Inject(method = "getAt",at = @At(value = "INVOKE", target = "Liskallia/vault/core/event/common/ObjectivePieceGenerationEvent$Data;getProbability()D",shift = At.Shift.BY,by = 2),locals = LocalCapture.CAPTURE_FAILHARD,remap = false)
+    private void invokeObjectiveFixEvent(Vault vault, RegionPos region, RandomSource random, PlacementSettings settings, CallbackInfoReturnable<Template> cir, Template template, JigsawTemplate jigsaw, Iterator iterator, JigsawTemplate target, double probability){
+        if(random.nextFloat() < probability && target!=null) {
+            var data = new ObjectiveTemplateData(target, vault);
+            ObjectiveTemplateEvent.INSTANCE.invoke(data);
+            jigsaw.getChildren().add(data.getTemplate());
+        }
     }
 }
