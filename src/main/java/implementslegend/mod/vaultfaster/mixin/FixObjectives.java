@@ -3,10 +3,14 @@ package implementslegend.mod.vaultfaster.mixin;
 import implementslegend.mod.vaultfaster.ObjectiveTemplateEvent;
 import iskallia.vault.core.event.Event;
 import iskallia.vault.core.event.common.BlockSetEvent;
+import iskallia.vault.core.vault.Vault;
 import iskallia.vault.core.vault.objective.*;
+import iskallia.vault.core.world.storage.VirtualWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
 
@@ -24,7 +28,17 @@ public class FixObjectives {
     * */
     @Redirect(method = "initServer",at = @At(value = "INVOKE", target = "Liskallia/vault/core/event/common/BlockSetEvent;register(Ljava/lang/Object;Ljava/util/function/Consumer;)Liskallia/vault/core/event/Event;"),remap = false)
     private Event fixObjective(BlockSetEvent instance, Object o, Consumer consumer){
-        ObjectiveTemplateEvent.INSTANCE.registerObjectiveTemplate((Objective)(Object)this);
-        return ObjectiveTemplateEvent.INSTANCE;
+        /*var objEvent = ObjectiveTemplateEventKt.getOBJECTIVE_TEMPLATE_EVENT();
+        objEvent.registerObjectiveTemplate((Objective)(Object)this);
+        return objEvent;*/
+        return null;
     }
+
+    @Inject(method = "initServer",at = @At("HEAD"),remap = false)
+    private void fixObjective2(VirtualWorld world, Vault vault, CallbackInfo ci){
+
+        ObjectiveTemplateEvent.INSTANCE.registerObjectiveTemplate((Objective)(Object)this,vault);
+
+    }
+
 }
