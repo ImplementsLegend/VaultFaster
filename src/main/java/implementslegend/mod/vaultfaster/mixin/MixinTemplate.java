@@ -49,7 +49,7 @@ public abstract class MixinTemplate {
                 new ArrayList(1024), new ArrayList(settings.doKeepFluids() ? 4096 : 0), new ArrayList(settings.doKeepFluids() ? 4096 : 0)
         );
         var tiles = ((StreamedTemplate)this).getTileStream(ALL_TILES, settings);
-        BatchSetBlockKt.placeTiles(world,tiles,settings, result);
+        BatchSetBlockKt.placeTiles(world,tiles, result);
 
         cir.setReturnValue(result);
     }

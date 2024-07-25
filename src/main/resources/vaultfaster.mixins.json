@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "vaultfaster.refmap.json",
   "mixins": [
-    "AsyncGridGenerator",
     "ChunkAccessAccessor",
     "DynamicStreamedTemplate",
     "EmptyStreamedTemplate",
@@ -32,12 +31,9 @@
     "PartialBlockRegistryIndex",
     "PredicateIdAccessor",
     "ProcessorPredicateAccessor",
-    "ProperShutdown",
     "ProtoChunkAccessor",
     "StaticStreamedTemplate",
-    "TileGroupsAccessor",
-    "VirtualWorldsExecutorAccessor",
-    "WrappingStreamedTemplate"
+    "TileGroupsAccessor"
   ],
   "client": [
   ],
