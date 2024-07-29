@@ -6,6 +6,7 @@ import iskallia.vault.block.MonolithBlock
 import iskallia.vault.block.ObeliskBlock
 import iskallia.vault.core.event.CommonEvents
 import iskallia.vault.core.event.Event
+import iskallia.vault.core.vault.Vault
 import iskallia.vault.core.vault.objective.*
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt
 import iskallia.vault.core.world.data.tile.PartialBlockState
@@ -17,7 +18,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 
-data class ObjectiveTemplateData(var template:JigsawTemplate)
+data class ObjectiveTemplateData(var template:JigsawTemplate,val vault: Vault)
 
 /*
 * objective POIs used block set event; That was slow and it was disabled by "fast set blocks" (batchSetBlocks.kt)
@@ -71,9 +72,10 @@ object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent,ObjectiveTemplateData
 
     /*registers event for given objective*/
     @JvmOverloads
-    fun registerObjectiveTemplate(objective:Objective, newTemplate:DynamicTemplate? = getTemplateForObjective(objective)){
+    fun registerObjectiveTemplate(objective:Objective,vault:Vault, newTemplate:DynamicTemplate? = getTemplateForObjective(objective)){
         register(objective){
-            (template)->
+            (template,vault2)->
+            if(vault2!==vault)return@register
             (template as? JigsawRootAccessor)?.let {
                 if (newTemplate != null) it.root = newTemplate
             }
