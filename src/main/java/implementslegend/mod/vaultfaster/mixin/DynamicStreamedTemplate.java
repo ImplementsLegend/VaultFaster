@@ -1,8 +1,10 @@
 package implementslegend.mod.vaultfaster.mixin;
 
+import implementslegend.mod.vaultfaster.DbgKt;
 import implementslegend.mod.vaultfaster.StreamedTemplate;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
+import iskallia.vault.core.world.processor.Processor;
 import iskallia.vault.core.world.template.DynamicTemplate;
 import iskallia.vault.core.world.template.PlacementSettings;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +26,24 @@ public class DynamicStreamedTemplate implements StreamedTemplate {
     @NotNull
     @Override
     public Stream<PartialTile> getTileStream(@NotNull TilePredicate filter, @NotNull PlacementSettings settings) {
-        return tiles.parallelStream();
+        return tiles.parallelStream().map(tile -> {
+            if (!filter.test(tile)) {
+                return null;
+            } else {
+                tile = tile.copy();
+
+                for (Processor<PartialTile> processor : settings.getTileProcessors()) {
+                    if (tile == null || !filter.test(tile)) {
+                        tile = null;
+                        break;
+                    }
+
+                    tile = processor.process(tile, settings.getProcessorContext());
+                }
+
+                DbgKt.breakpoint();
+                return tile;
+            }
+        });
     }
 }

@@ -9,11 +9,13 @@ import iskallia.vault.core.world.processor.ProcessorContext;
 import iskallia.vault.core.world.processor.tile.*;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.StructureTemplate;
+import iskallia.vault.init.ModBlocks;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +32,16 @@ public class MixinStructureTemplate implements StreamedTemplate {
     @Shadow private Map<TilePredicate, List<PartialTile>> tiles;
 
 
+    private static BitSet blackListed = new BitSet(1024*1024);
+
     private PartialTile tileMappingFunc(PartialTile tile, TilePredicate filter, PlacementSettings settings){
         tile = tile.copy();
 
+        var bll = this.blackListed;
+        var regIndex = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
+        if(tile==null || (regIndex>0 && !blackListed.get(regIndex))){
+            DbgKt.breakpoint();
+        }
         if (tile == null || !filter.test(tile)) {
             return null;
         }
@@ -46,9 +55,8 @@ public class MixinStructureTemplate implements StreamedTemplate {
                     tile = null;
                     break;
                 }
-                processBlacklisted(processor,tile,settings.getProcessorContext());
+                tile=processBlacklisted(processor,tile,settings.getProcessorContext());
             }
-            return tile;
         } else {
 
             for (Processor<PartialTile> processor : ((ExtendedPlacementSettings) settings).getUnmappedProcessors()) {
@@ -57,11 +65,16 @@ public class MixinStructureTemplate implements StreamedTemplate {
                     tile = null;
                     break;
                 }
-                processNotTargetted(processor, tile, settings.getProcessorContext());
+                tile=processNotTargetted(processor, tile, settings.getProcessorContext());
             }
 
-            return ((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
+            tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
         }
+        var ri = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
+        if(tile==null || ri == ((IndexedBlock) ModBlocks.ERROR_BLOCK).getRegistryIndex() || ri<0){
+            DbgKt.breakpoint();
+        }
+        return tile;
     }
 
     @NotNull

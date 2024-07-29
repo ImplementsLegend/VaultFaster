@@ -33,6 +33,9 @@ public class JigsawStreamedTemplate implements StreamedTemplate {
     public Stream<PartialTile> getTileStream(@NotNull TilePredicate filter, @NotNull PlacementSettings settings) {
         PlacementSettings copy = settings.copy();
         this.configurator.accept(copy);
-        return Streams.concat(((StreamedTemplate)this.root).getTileStream(filter, copy),this.children.parallelStream().flatMap(child -> ((StreamedTemplate)child).getTileStream(filter, copy)));
+
+        var templateList = new ArrayList<Template>(this.children);
+        templateList.add(0,this.root);
+        return templateList.parallelStream().flatMap(child -> ((StreamedTemplate)child).getTileStream(filter, copy));
     }
 }
