@@ -29,7 +29,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
     }
 
     private fun generate() {
-        val privateHashMap = LinkedHashMap((base.parent as StreamedTemplate).getTileStream(Template.ALL_TILES,base.settings).parallel().collect(
+        val privateHashMap = LinkedHashMap((base.parent as StreamedTemplate).getTileStream(Template.ALL_TILES,base.settings).collect(
             TilesToTemplatesCollector).mapValues {
             (k,v)->StaticTemplate((v as ArrayList).apply { trimToSize() },ArrayList(128))
         })
@@ -43,13 +43,12 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
 
     fun place(world: ServerLevelAccessor, pos: ChunkPos) {
         tryGenerate()
-
-        (world.minSection..world.maxSection).toList().parallelStream().forEach {
-            val sectionPos = SectionPos.of(pos,it)
-            sections.thenAcceptAsync({
-                it[sectionPos]?.place(world,base.settings)
-            }, VAULT_GENERATION_EXECUTOR)
-        }
+        sections.thenAccept {
+            (world.minSection..world.maxSection).toList().parallelStream().map { it1 ->
+                val sectionPos = SectionPos.of(pos, it1)
+                it[sectionPos]?.place(world, base.settings)
+            }.collect(Collectors.toList())
+        }.get()
     }
 }
 
@@ -65,11 +64,10 @@ val TilesToTemplatesCollector = Collector.of(
     },
     {
         a,b->
-        a.apply {
-            a.forEach { sectionPos, partialTiles ->
-                this.computeIfAbsent(sectionPos){ ArrayList(4096) } += partialTiles
-            }
+        b.forEach { (sectionPos, partialTiles) ->
+            a.computeIfAbsent(sectionPos){ ArrayList(4096) } += partialTiles
         }
+        a
     }
 
 
