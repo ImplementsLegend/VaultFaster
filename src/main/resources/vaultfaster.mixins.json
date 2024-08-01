@@ -6,12 +6,17 @@
     "refmap": "vaultfaster.refmap.json",
     "mixins": [
         "ChunkAccessAccessor",
+        "ConcurrentGridGenerator",
+        "DynamicStreamedTemplate",
+        "EmptyStreamedTemplate",
         "FixObjectives",
         "HeraldFix",
         "JigsawRootAccessor",
+        "JigsawStreamedTemplate",
         "LevelChunkAccessor",
         "MeasurePerformance",
         "MixinBlockRegistryIndex",
+        "MixinChunkedTemplate",
         "MixinJigsawCorrectAddProcessors",
         "MixinLeveledProcessor",
         "MixinPalette",
@@ -28,7 +33,9 @@
         "PredicateIdAccessor",
         "ProcessorPredicateAccessor",
         "ProtoChunkAccessor",
+        "StaticStreamedTemplate",
         "TileGroupsAccessor",
+        "VaultBypassMailbox",
         "TreasureRoomFix"
     ],
     "client": [

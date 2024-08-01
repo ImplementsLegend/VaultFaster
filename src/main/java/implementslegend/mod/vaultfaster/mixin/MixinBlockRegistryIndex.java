@@ -1,8 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.IndexedBlock;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.block.Block;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;

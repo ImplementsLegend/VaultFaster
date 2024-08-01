@@ -5,16 +5,15 @@ import implementslegend.mod.vaultfaster.mixin.LevelChunkAccessor
 import implementslegend.mod.vaultfaster.mixin.ProtoChunkAccessor
 import iskallia.vault.VaultMod
 import iskallia.vault.core.world.data.tile.PartialTile
-import iskallia.vault.core.world.template.PlacementSettings
 import iskallia.vault.core.world.template.Template
 import iskallia.vault.init.ModBlocks
+import net.minecraft.ReportedException
 import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.SectionPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Clearable
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.LevelAccessor
@@ -28,17 +27,16 @@ import net.minecraft.world.level.chunk.ChunkStatus
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.ProtoChunk
 import net.minecraft.world.level.levelgen.Heightmap
-import net.minecraft.world.level.lighting.LevelLightEngine
 import net.minecraftforge.fml.loading.FMLEnvironment
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import java.util.stream.Collectors
 import java.util.stream.Stream
-import java.util.stream.StreamSupport
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 import kotlin.collections.LinkedHashSet
-import kotlin.streams.toList
 
 
 private infix fun Int.rangeUntilWidth(i: Int): IntRange = this until (this+i)
@@ -59,8 +57,8 @@ value class TileResult(val result:Any){
 }
 
 
-fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementSettings, result_:Any){
-    val result = TileResult(result_)
+fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, result_: Any?){
+    val result = result_?.let { TileResult(it) }
     val nl = ArrayList<Pair<BlockPos,BlockState>>(4096)
     val tiles = ArrayList<Pair<BlockPos,CompoundTag>>(4096)
     blocks.forEachRemaining{
@@ -73,13 +71,14 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
                 }
                 ModBlocks.ERROR_BLOCK.defaultBlockState()
             }
-        if (tile.entity.asWhole().isPresent) {
+        val entity = tile.entity.asWhole().filter { !it.isEmpty }
+        if (entity.isPresent) {
             val blockentity = getBlockEntity(tile.pos)
             Clearable.tryClear(blockentity)
         }
         nl+=tile.pos to state
-        tile.entity.asWhole().ifPresent{
-            result.placedBlockEntities.add(tile)
+        entity.ifPresent{
+            result?.placedBlockEntities?.add(tile)
             tiles+=tile.pos to it
         }
     }
@@ -99,28 +98,25 @@ fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, settings: PlacementS
 }
 
 
-fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, settings: PlacementSettings, result_:Any){
-    val result = TileResult(result_)
-    val (nl,tiles) = blocks_.collect({
+fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?){
+    val result = result_?.let { TileResult(it) }
+    val (nl,tiles) = blocks_.filter { it!==null }.collect({
         ArrayList<Pair<BlockPos,BlockState>>(256) to ArrayList<Pair<PartialTile,CompoundTag>>(256)
     },{
         (nl,tiles),tile->
-        val state = tile.state
+        val state = tile.state 
             .asWhole()
             .orElseGet {
-                if (FMLEnvironment.production) {
-                    VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
-                }
+                VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
                 ModBlocks.ERROR_BLOCK.defaultBlockState()
             }
-        if (tile.entity.asWhole().isPresent) {
+        val entityTag = tile.entity.asWhole().filter { !it.isEmpty }
+        if (entityTag.isPresent) {
             val blockentity = getBlockEntity(tile.pos)
             Clearable.tryClear(blockentity)
         }
         nl+=tile.pos to state
-        tile.entity.asWhole().ifPresent{
-            tiles+=tile to it
-        }
+        entityTag.ifPresent{ tiles+=tile to it }
     },{(nl1,tiles1),(nl2,tiles2)->nl1.apply { addAll(nl2) } to tiles1.apply { addAll(tiles2) }})
     setBlocks(nl)
     tiles.forEach {
@@ -132,9 +128,13 @@ fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, settings: PlacementSe
             if (blockEntity is CommandBlockEntity) {
                 scheduleTick(partial.pos, Blocks.COMMAND_BLOCK, 1)
             }
-            result.placedBlockEntities.add(partial)
+            result?.placedBlockEntities?.add(partial)
 
-        } catch (e:Exception){setBlock(partial.pos,ModBlocks.ERROR_BLOCK.defaultBlockState(),0)}
+        } catch (e:Exception){
+            VaultMod.LOGGER.error("Failed to setup tile entity '$partial' at (${partial.pos.x}, ${partial.pos.y}, ${partial.pos.z})")
+            e.printStackTrace()
+            setBlock(partial.pos,ModBlocks.ERROR_BLOCK.defaultBlockState(),0)
+        }
     }
 }
 
@@ -142,10 +142,24 @@ private val delayExecutor = CompletableFuture.delayedExecutor(500,TimeUnit.MILLI
 
 fun LevelAccessor.setBlocks(blocks: List<Pair<BlockPos, BlockState>>){
     val positions = LinkedHashSet<ChunkPos>()
-    blocks.groupBy { SectionPos.of(it.first) }.forEach { (sectionPos, pairs) ->
-        val chunk = getChunk(sectionPos.x, sectionPos.z)
-        positions+=chunk.pos
-        chunk.setBlocks((sectionPos.y-(chunk.minBuildHeight shr 4)),pairs)
+    if(this is ServerLevel){
+
+        blocks.groupBy { SectionPos.of(it.first) }.entries.stream().map { (sectionPos, pairs) ->
+            val chunk = getChunk(sectionPos.x, sectionPos.z)
+            positions += chunk.pos
+            chunk to chunk.setBlocks((sectionPos.y - (chunk.minBuildHeight shr 4)), pairs)
+        }.collect(Collectors.toList())
+    }else {
+        blocks.groupBy { SectionPos.of(it.first) }.entries.parallelStream().map { (sectionPos, pairs) ->
+            val chunk = getChunk(sectionPos.x, sectionPos.z)
+            positions += chunk.pos
+            chunk to chunk.setBlocks((sectionPos.y - (chunk.minBuildHeight shr 4)), pairs)
+        }.collect(Collectors.toList()).forEach { (chunk, posList) ->
+
+            synchronized(chunk) {
+                (chunk as? ProtoChunkAccessor)?.lights?.addAll(posList)
+            }
+        }
     }
     if (this is ServerLevel) { //stuff was not getting updated correctly
         positions.forEach { pos ->
@@ -169,8 +183,9 @@ fun LevelAccessor.setBlocks(blocks: List<Pair<BlockPos, BlockState>>){
 *   but light updates seem to be a bit broken for LevelChunk
 * */
 
-fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, BlockState>>, skipHeightmaps:Boolean=true){
+fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, BlockState>>, skipHeightmaps:Boolean=true):List<BlockPos>{
 
+    val result = ArrayList<BlockPos>()
     val sectionHeightRange = minBuildHeight + 16 * sectionIdx rangeUntilWidth 16
     val sectionXRange = pos.x*16 rangeUntilWidth 16
     val sectionZRange = pos.z*16 rangeUntilWidth 16
@@ -178,13 +193,22 @@ fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, Block
         Unit
     val section = getSection(sectionIdx)
     val tasks = ArrayList<()->Unit>(4096)
-    try {
+    //val release = CompletableFuture<Unit>()
 
-        section.acquire()
+    try {
+        /*
+        var oldValue = CompletableFuture.completedFuture(Unit)
+        usedSections.compute(SectionPos.of(pos,sectionIdx)){
+            pos,old->
+            old?.let { oldValue=it }
+            release
+        }
+        oldValue.get()*/
+        section.states.acquire()
         blocks.forEach { (position, newState) ->
             if (position.x !in sectionXRange || position.z !in sectionZRange || position.y !in sectionHeightRange) return@forEach
 
-            if (newState.getLightEmission(this, position) > 0 && this is ProtoChunk) (this as ProtoChunkAccessor).lights.add(BlockPos((position.x and 15) + sectionXRange.first, position.y, (position.z and 15) + sectionZRange.first))
+            if (newState.getLightEmission(this, position) > 0 && this is ProtoChunk) result.add(BlockPos((position.x and 15) + sectionXRange.first, position.y, (position.z and 15) + sectionZRange.first))
             val j: Int = position.x and 15
             val k: Int = position.y and 15
             val l: Int = position.z and 15
@@ -212,9 +236,11 @@ fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, Block
                     setBlockEntityNbt(compoundtag)
                 }
 
+                /* todo
                 if (status.isOrAfter(ChunkStatus.FEATURES) && newState !== blockstate && (newState.getLightBlock(this, position) != blockstate.getLightBlock(this, position) || newState.getLightEmission(this, position) != blockstate.getLightEmission(this, position) || newState.useShapeForLightOcclusion() || blockstate.useShapeForLightOcclusion())) {
                     (this as ProtoChunkAccessor).lightEngine?.checkBlock(position)
                 }
+                */
                 if(!skipHeightmaps) {
 
                     val enumset = status.heightmapsAfter()
@@ -250,10 +276,6 @@ fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, Block
                     heightmaps.singleOrNull { it.key == Heightmap.Types.OCEAN_FLOOR }?.value?.update(j, position.y, l, newState)
                     heightmaps.singleOrNull { it.key == Heightmap.Types.WORLD_SURFACE }?.value?.update(j, position.y, l, newState)
                 }
-                val flag1: Boolean = section.hasOnlyAir()
-                if (/*flag != flag1*/ true) {
-                }
-
                 val flag2: Boolean = blockstate.hasBlockEntity()
                 if (!level.isClientSide) {
                     blockstate.onRemove(level, position, newState, false)
@@ -295,8 +317,10 @@ fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, Block
         }
     }finally {
         section.release()
+        //release.complete(Unit)
         tasks.forEach{
             it()
         }
     }
+    return result
 }

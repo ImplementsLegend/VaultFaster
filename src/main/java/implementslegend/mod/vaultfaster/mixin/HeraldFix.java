@@ -1,6 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.IndexedBlock;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
 import iskallia.vault.block.HeraldControllerBlock;
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt;
 import iskallia.vault.core.world.data.tile.PartialBlockState;
@@ -10,22 +10,16 @@ import iskallia.vault.init.ModBlocks;
 import kotlin.jvm.internal.Ref;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.FrontAndTop;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.lang.ref.Reference;
 import java.util.List;
 
 @Mixin(StructureTemplate.class)

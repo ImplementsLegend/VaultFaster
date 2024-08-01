@@ -1,11 +1,10 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.BlocksKt;
-import implementslegend.mod.vaultfaster.IndexedBlock;
+import implementslegend.mod.vaultfaster.FixatedBlockIDsKt;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
 import iskallia.vault.core.world.data.tile.PartialBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
@@ -31,7 +30,7 @@ public class PartialBlockRegistryIndex implements IndexedBlock {
     @Override
     public int getRegistryIndex(){
         if(regIdx==-69420){
-            regIdx= BlocksKt.getIdForBlock(((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getValue(this.id));
+            regIdx= FixatedBlockIDsKt.getIdForBlock(((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getValue(this.id));
             if(regIdx==0 ) {
                 var resName = ((PartialBlockIDAccessor)this).getId();
                 if(!resName.getNamespace().equals("minecraft") && !resName.getPath().equals("air")) regIdx=-666;
@@ -67,7 +66,7 @@ public class PartialBlockRegistryIndex implements IndexedBlock {
 
     @Overwrite(remap = false)
     public Optional<Block> asWhole() {
-        return Optional.ofNullable(BlocksKt.getBlockByIDOrNull(getRegistryIndex()));
+        return Optional.ofNullable(FixatedBlockIDsKt.getBlockByIDOrNull(getRegistryIndex()));
     }
 
 

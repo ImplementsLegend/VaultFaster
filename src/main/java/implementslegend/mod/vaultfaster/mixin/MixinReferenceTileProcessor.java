@@ -1,9 +1,7 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.CachedPaletteContainer;
-import implementslegend.mod.vaultfaster.TileMapperContainer;
+import implementslegend.mod.vaultfaster.interfaces.CachedPaletteContainer;
 import iskallia.vault.core.Version;
-import iskallia.vault.core.data.key.PaletteKey;
 import iskallia.vault.core.vault.Vault;
 import iskallia.vault.core.vault.VaultRegistry;
 import iskallia.vault.core.world.data.tile.PartialTile;
@@ -57,5 +55,14 @@ public class MixinReferenceTileProcessor implements CachedPaletteContainer {
             }
         }
         return palette;
+    }
+
+    @NotNull
+    @Override
+    public Palette getCachedPaletteForVersion(Version version) {//this could break when running 2 vaults simultaneously
+        if(cachedPalette==null){
+            cachedPalette = VaultRegistry.PALETTE.getKey(this.id).get(version);
+        }
+        return cachedPalette;
     }
 }

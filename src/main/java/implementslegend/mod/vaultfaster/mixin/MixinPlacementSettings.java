@@ -1,8 +1,8 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.ExtendedPlacementSettings;
+import implementslegend.mod.vaultfaster.interfaces.ExtendedPlacementSettings;
 import implementslegend.mod.vaultfaster.TileMapper;
-import implementslegend.mod.vaultfaster.TileMapperContainer;
+import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer;
 import iskallia.vault.core.world.processor.Palette;
 import iskallia.vault.core.world.processor.Processor;
 import iskallia.vault.core.world.processor.tile.*;

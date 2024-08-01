@@ -13,6 +13,7 @@ import iskallia.vault.core.world.template.JigsawTemplate;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.Template;
 import iskallia.vault.init.ModBlocks;
+import kotlin.Unit;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Mixin(VaultLayout.class)
 public abstract class MixinVaultLayout {
@@ -36,10 +38,10 @@ public abstract class MixinVaultLayout {
     private Event batchFill(NoiseGenerationEvent instance, Object o, Consumer consumer){
 
         return instance.register(o,((DataObject)(Object)this).has(FILL_AIR)?(obj)->{}:(NoiseGenerationEvent.Data obj)->{
-            for(var section = 3;section>=0;section--) {
-
-                BatchSetBlockKt.setBlocks(obj.getChunk(), section, SectionBlocksKt.blocksToFill(obj.getChunk().getPos().getWorldPosition().atY(16*section-obj.getGenRegion().getMinBuildHeight())),true);
-            }
+            List.of(0,1,2,3).parallelStream().map((section)-> {
+                BatchSetBlockKt.setBlocks(obj.getChunk(), section, BedrockFillKt.blocksToFill(obj.getChunk().getPos().getWorldPosition().atY(16*section-obj.getGenRegion().getMinBuildHeight())),true);
+                return Unit.INSTANCE;
+            }).collect(Collectors.toList());
             obj.getChunk().getHeightmaps().forEach((entry)->{//batchSetBlocks skips heightmap updates; must be done manually
                 for(var x = 0;x<16;x++) {
                     for(var z = 0;z<16;z++) {
@@ -55,7 +57,7 @@ public abstract class MixinVaultLayout {
     /*
     @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z",ordinal = 0),remap = false)
     boolean invokeObjectiveFixEvent(List instance, Object e){
-        var data = new ObjectiveTemplateData((JigsawTemplate) e,);
+        var data = new ObjectiveTemplateData((JigsawTemplate) e);
         ObjectiveTemplateEvent.INSTANCE.invoke(data);
         return instance.add(data.getTemplate());
     }*/

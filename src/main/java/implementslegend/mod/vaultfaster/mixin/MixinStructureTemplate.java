@@ -1,14 +1,17 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.*;
+import implementslegend.mod.vaultfaster.interfaces.ExtendedPlacementSettings;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
+import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer;
 import iskallia.vault.core.util.iterator.MappingIterator;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
 import iskallia.vault.core.world.processor.Processor;
 import iskallia.vault.core.world.processor.ProcessorContext;
-import iskallia.vault.core.world.processor.tile.*;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.StructureTemplate;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,74 +19,44 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
 /*
 * applies tile mapper when processing all tiles except blacklisted
 * */
 @SuppressWarnings("ALL")
 @Mixin(StructureTemplate.class)
-public class MixinStructureTemplate {
-
+public class MixinStructureTemplate implements StreamedTemplate {
 
     @Shadow private Map<TilePredicate, List<PartialTile>> tiles;
 
-
-    @Overwrite(remap = false)
-    public Iterator<PartialTile> getTiles(TilePredicate filter, PlacementSettings settings) {
-
-        return new MappingIterator<PartialTile,PartialTile>(((List)this.tiles.get(filter)).iterator(), (PartialTile tile) -> {
-            tile = tile.copy();
+    private PartialTile tileMappingFunc(PartialTile tile, TilePredicate filter, PlacementSettings settings){
+        tile = tile.copy();
+        var regIndex = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
+        if (tile == null || !filter.test(tile)) return null;
+        for (Processor<PartialTile> processor : ((ExtendedPlacementSettings) settings).getUnmappedProcessors()) {
 
             if (tile == null || !filter.test(tile)) {
                 tile = null;
-                return tile;
+                break;
             }
-            //some blocks would not be processed correctly
-            var dontUseTileMapper = TileMapperBlacklist.INSTANCE.isBlacklisted(((IndexedBlock)tile.getState().getBlock()).getRegistryIndex());
+            ProcessorContext processorContext = settings.getProcessorContext();
+            tile= processor.process(tile, processorContext);
+        }
 
-            if(dontUseTileMapper){
-
-
-                for(Processor<PartialTile> processor : settings.getTileProcessors()) {
-
-                    if (tile == null || !filter.test(tile)) {
-                        tile = null;
-                        break;
-                    }
-                    processBlacklisted(processor,tile,settings.getProcessorContext());
-                }
-            } else {
-
-                for (Processor<PartialTile> processor : ((ExtendedPlacementSettings) settings).getUnmappedProcessors()) {
-
-                    if (tile == null || !filter.test(tile)) {
-                        tile = null;
-                        break;
-                    }
-                    processNotTargetted(processor, tile, settings.getProcessorContext());
-                }
-
-                tile = ((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
-            }
-            /*
-            for(Processor<PartialTile> processor : settings.getTileProcessors()) {
-
-                if (tile == null || !filter.test(tile)) {
-                    tile = null;
-                    break;
-                }
-                tile=(processor instanceof TargetTileProcessor)? processTargeted(processor,tile,settings.getProcessorContext()):processNotTargetted(processor,tile,settings.getProcessorContext());
-            }*/
-
-            return tile;
-        });
+        tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
+        var ri = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
+        return tile;
     }
 
-    /*for profiling*/
-    private PartialTile processNotTargetted(Processor<PartialTile> processor, PartialTile tile, ProcessorContext processorContext) {
-        return processor.process(tile, processorContext);
+    @NotNull
+    @Override
+    public Stream<PartialTile> getTileStream(@NotNull TilePredicate filter, @NotNull PlacementSettings settings) {
+        return ((List<PartialTile>)this.tiles.get(filter)).parallelStream().map((tile) -> tileMappingFunc(tile,filter,settings));
     }
 
-    private PartialTile processBlacklisted(Processor<PartialTile> processor, PartialTile tile, ProcessorContext processorContext) {
-        return processor.process(tile, processorContext);
+    @Overwrite(remap = false)
+    public Iterator<PartialTile> getTiles(TilePredicate filter, PlacementSettings settings) {
+        return new MappingIterator<PartialTile,PartialTile>(((List)this.tiles.get(filter)).iterator(), (PartialTile tile) -> tileMappingFunc(tile,filter,settings));
     }
 }
