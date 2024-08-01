@@ -44,6 +44,10 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
                         )
                     }.entities as ArrayList) += it
                 }
+            privateHashMap.forEach{
+                    (_,template)->
+                (template.entities as ArrayList).trimToSize()
+            }
             privateHashMap
         }
 
