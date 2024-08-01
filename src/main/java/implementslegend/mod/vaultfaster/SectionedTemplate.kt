@@ -17,28 +17,40 @@ import java.util.function.Supplier
 import java.util.stream.Collector
 import java.util.stream.Collectors
 
+
 class SectionedTemplate(val base:ConfiguredTemplate) {
 
     val started = AtomicBoolean()
     val sections = CompletableFuture<HashMap<SectionPos,StaticTemplate>>()
 
     fun tryGenerate(){
-        if(!started.plain && !started.getAndSet(true)){
+        if(!started.plain && started.compareAndSet(false,true)){
             generate()
         }
     }
 
     private fun generate() {
-        val privateHashMap = LinkedHashMap((base.parent as StreamedTemplate).getTileStream(Template.ALL_TILES,base.settings).collect(
-            TilesToTemplatesCollector).mapValues {
-            (k,v)->StaticTemplate((v as ArrayList).apply { trimToSize() },ArrayList(128))
-        })
-        base.parent.getEntities(Template.ALL_ENTITIES).forEach {
-            val secpos = SectionPos.of(it.blockPos)
-            (privateHashMap.computeIfAbsent(secpos){StaticTemplate(ArrayList(),ArrayList(16))}.entities as ArrayList)+=it
+        sections.completeAsync {
+
+            val privateHashMap:LinkedHashMap<SectionPos,StaticTemplate> =
+                    LinkedHashMap((base.parent as StreamedTemplate).getTileStream(Template.ALL_TILES, base.settings)
+                        .collect(
+                            TilesToTemplatesCollector
+                        ).mapValues { (k, v) ->
+                            StaticTemplate((v as ArrayList).apply { trimToSize() }, ArrayList(128))
+                        })
+                base.parent.getEntities(Template.ALL_ENTITIES).forEach {
+                    val secpos = SectionPos.of(it.blockPos)
+                    (privateHashMap.computeIfAbsent(secpos) {
+                        StaticTemplate(
+                            ArrayList(),
+                            ArrayList(16)
+                        )
+                    }.entities as ArrayList) += it
+                }
+            privateHashMap
         }
 
-        sections.complete(privateHashMap)
     }
 
     fun place(world: ServerLevelAccessor, pos: ChunkPos) {
