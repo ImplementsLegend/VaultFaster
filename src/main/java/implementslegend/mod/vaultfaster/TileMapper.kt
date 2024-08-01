@@ -28,13 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 * trying to apply every tile processor to every tile was just too taxing and way to reduce number of considered processors was required
 * this is probably the most important optimisation in the entire mod
 *
-* todo add ReferenceTTile processor to all so its content can be inlined correctly
 * */
 
 class TileMapper() {
-    val couldContainReferences = AtomicBoolean(true)
-    //var couldContainReferencesBadSync = true //so that you don't have to check Atomic version every time
-
 
     //all processors for which numerical ids couldn't be determined
     val unconditional:ArrayList<TileProcessor> = arrayListOf()
@@ -42,12 +38,9 @@ class TileMapper() {
      * main table for storing all the mappings
      * idx: numerical id of block
      * value: list of applicable tile processors
+     *
+     * nuw multi-tier to preserve a bit of memory
      */
-    /*
-    @Deprecated("change")
-    val mappings:Array<ArrayList< TileProcessor>> = Array(BLOCKS.size()){
-        arrayListOf()
-    }*/
     val mappingsTiered:Array<Array<ArrayList<TileProcessor>>?> = Array(BLOCKS.size() shr 8){
         null
     }
@@ -59,13 +52,6 @@ class TileMapper() {
     fun mapBlock(tile: PartialTile?, ctx: ProcessorContext):PartialTile? {
         val idx = ((tile?:return null).state.block as IndexedBlock).registryIndex
         var newTile:PartialTile =tile
-        if (couldContainReferences.plain && couldContainReferences.getAndSet(false)) {
-            val newProcessors = arrayListOf<TileProcessor>()
-            unconditional.removeIf {
-                tryFlatten(it, newProcessors, ctx)
-            }
-            unconditional += newProcessors
-        }
         newTile = mapUnconditional(idx, newTile, ctx)?:return null
         newTile = mapConditional(idx, newTile, ctx)?:return null
         return newTile
@@ -93,31 +79,9 @@ class TileMapper() {
 
     private fun getOrCreateTier(idx: Int): Array<ArrayList<TileProcessor>> {
         if(idx !in mappingsTiered.indices) return emptyArray()
-        return this.mappingsTiered.get(idx)?:Array<ArrayList<TileProcessor>>(256){
+        return this.mappingsTiered[idx] ?:Array<ArrayList<TileProcessor>>(256){
             arrayListOf()
         }.also { mappingsTiered[idx]= it }
-    }
-
-    private fun tryFlatten(processor: TileProcessor, newProcessors: ArrayList<TileProcessor>, ctx: ProcessorContext): Boolean {
-        if(processor !is ReferenceTileProcessor) return false
-
-        ((processor as CachedPaletteContainer).getCachedPalette(ctx) as TileMapperContainer).tileMapper.let { mapper ->
-            mapper.mappingsTiered.forEachIndexed{
-                idx,tier->
-                if(tier===null)return@forEachIndexed
-                val thisTier = this.getOrCreateTier(idx)
-                thisTier.forEachIndexed {
-                    idx, processors->
-                    processors+=tier[idx]
-                }
-            }
-            mapper.unconditional.forEach {
-                if (!tryFlatten(it,newProcessors,ctx))newProcessors+=it
-            }
-        }
-
-        return true
-
     }
 
     @JvmOverloads
@@ -164,9 +128,6 @@ class TileMapper() {
     }
 
     private fun addUnconditional(processor: TileProcessor,start:Boolean=false) {
-        if(processor is ReferenceTileProcessor) {
-            couldContainReferences.set(true)
-        }
         unconditional.let {
                 list->
             if(start)list.add(0,processor)
@@ -188,57 +149,59 @@ class TileMapper() {
         }
     }
 
-    /**
-     * determines which blocks can mach given predicate
-     * @param pred predicate for which to determine blocks
-     * @return sequence of numerical ids of blocks that can match the given predicate
-     * @throws UnconditionalPredicate if predicate isn't restricted by block type
-     * */
-    private fun getIndices(pred:TilePredicate):Sequence<Int>{
-        return when(pred){
-            is PartialBlockTag->{
-                val key = TagKey(Registry.BLOCK_REGISTRY,(pred as PredicateIdAccessor).id)
-                ForgeRegistries.BLOCKS.tags()?.getTag(key)?.iterator()?.asSequence()?.map { (it as IndexedBlock).registryIndex }?: emptySequence()
 
-            }
-            is PartialBlockGroup->{
-                val key = (pred as PredicateIdAccessor).id
-                (ModConfigs.TILE_GROUPS as TileGroupsAccessor).groups[key]?.asSequence()?.flatMap ( ::getIndices )?: emptySequence()
+}
 
-            }
-            is PartialTile->{
-                sequenceOf((pred.state.block as IndexedBlock).registryIndex)
-            }
-            is PartialBlockState->{
-                sequenceOf((pred.block as IndexedBlock).registryIndex)
-            }
-            is PartialBlock->{
-                sequenceOf((pred as IndexedBlock).registryIndex)
-            }
-            is OrTilePredicate->{
-                pred.children.asSequence().flatMap ( ::getIndices )
-            }
-            is LeveledPredicate->{
-                pred.processor.levels.entries.asSequence().flatMap{
+
+/**
+ * determines which blocks can mach given predicate
+ * @param pred predicate for which to determine blocks
+ * @return sequence of numerical ids of blocks that can match the given predicate
+ * @throws UnconditionalPredicate if predicate isn't restricted by block type
+ * */
+fun getIndices(pred:TilePredicate):Sequence<Int>{
+    return when(pred){
+        is PartialBlockTag->{
+            val key = TagKey(Registry.BLOCK_REGISTRY,(pred as PredicateIdAccessor).id)
+            ForgeRegistries.BLOCKS.tags()?.getTag(key)?.iterator()?.asSequence()?.map { (it as IndexedBlock).registryIndex }?: emptySequence()
+
+        }
+        is PartialBlockGroup->{
+            val key = (pred as PredicateIdAccessor).id
+            (ModConfigs.TILE_GROUPS as TileGroupsAccessor).groups[key]?.asSequence()?.flatMap ( ::getIndices )?: emptySequence()
+
+        }
+        is PartialTile->{
+            sequenceOf((pred.state.block as IndexedBlock).registryIndex)
+        }
+        is PartialBlockState->{
+            sequenceOf((pred.block as IndexedBlock).registryIndex)
+        }
+        is PartialBlock->{
+            sequenceOf((pred as IndexedBlock).registryIndex)
+        }
+        is OrTilePredicate->{
+            pred.children.asSequence().flatMap ( ::getIndices )
+        }
+        is LeveledPredicate->{
+            pred.processor.levels.entries.asSequence().flatMap{
                     (_,processor)->
 
-                    if (processor is SpawnerTileProcessor || processor is WeightedTileProcessor) {
-                        getIndices((processor as ProcessorPredicateAccessor).predicate)
-                    } else if (processor is BernoulliWeightedTileProcessor) {
-                        getIndices(processor.target)
-                    } else if (processor is VaultLootTileProcessor) {
-                        getIndices(PartialBlock.of(ModBlocks.PLACEHOLDER))
-                    } else if (processor is LeveledTileProcessor) {
-                        getIndices(LeveledPredicate(processor))
-                    } else {
-                        throw UnconditionalPredicate()
-                    }
+                if (processor is SpawnerTileProcessor || processor is WeightedTileProcessor) {
+                    getIndices((processor as ProcessorPredicateAccessor).predicate)
+                } else if (processor is BernoulliWeightedTileProcessor) {
+                    getIndices(processor.target)
+                } else if (processor is VaultLootTileProcessor) {
+                    getIndices(PartialBlock.of(ModBlocks.PLACEHOLDER))
+                } else if (processor is LeveledTileProcessor) {
+                    getIndices(LeveledPredicate(processor))
+                } else {
+                    throw UnconditionalPredicate()
                 }
             }
-            else -> throw UnconditionalPredicate()
-        }.distinct()
-    }
-
+        }
+        else -> throw UnconditionalPredicate()
+    }.distinct()
 }
 
 private class UnconditionalPredicate:Throwable()
