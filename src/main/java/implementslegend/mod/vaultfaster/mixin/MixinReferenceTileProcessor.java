@@ -58,4 +58,13 @@ public class MixinReferenceTileProcessor implements CachedPaletteContainer {
         }
         return palette;
     }
+
+    @NotNull
+    @Override
+    public Palette getCachedPaletteForVersion(Version version) {//this could break when running 2 vaults simultaneously
+        if(cachedPalette==null){
+            cachedPalette = VaultRegistry.PALETTE.getKey(this.id).get(version);
+        }
+        return cachedPalette;
+    }
 }

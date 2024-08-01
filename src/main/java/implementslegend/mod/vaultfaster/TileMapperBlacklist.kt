@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraftforge.registries.ForgeRegistries
 import java.util.*
 
+@Deprecated(level = DeprecationLevel.ERROR, message = "this shouldn't be needed anymore")
 object TileMapperBlacklist {
     private val spawnerBlock by lazy {
         ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse("ispawner:spawner"))
@@ -35,6 +36,6 @@ object TileMapperBlacklist {
         }
     }
 
-    fun isBlacklisted(block:Int):Boolean = (block == ((spawnerBlock as IndexedBlock?)?.registryIndex ?: Int.MAX_VALUE)) or (block == (chest as IndexedBlock).registryIndex) //if(block<0)false else blacklist.get(block)
+    fun isBlacklisted(block:Int):Boolean = false//(block == ((spawnerBlock as IndexedBlock?)?.registryIndex ?: Int.MAX_VALUE)) or (block == (chest as IndexedBlock).registryIndex) //if(block<0)false else blacklist.get(block)
 
 }

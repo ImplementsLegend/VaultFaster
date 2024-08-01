@@ -6,16 +6,13 @@ import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
 import iskallia.vault.core.world.processor.Processor;
 import iskallia.vault.core.world.processor.ProcessorContext;
-import iskallia.vault.core.world.processor.tile.*;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.StructureTemplate;
-import iskallia.vault.init.ModBlocks;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,52 +25,24 @@ import java.util.stream.Stream;
 @Mixin(StructureTemplate.class)
 public class MixinStructureTemplate implements StreamedTemplate {
 
-
     @Shadow private Map<TilePredicate, List<PartialTile>> tiles;
-
-
-    private static BitSet blackListed = new BitSet(1024*1024);
 
     private PartialTile tileMappingFunc(PartialTile tile, TilePredicate filter, PlacementSettings settings){
         tile = tile.copy();
-
-        var bll = this.blackListed;
         var regIndex = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
-        if(tile==null || (regIndex>0 && !blackListed.get(regIndex))){
-            DbgKt.breakpoint();
-        }
-        if (tile == null || !filter.test(tile)) {
-            return null;
-        }
-        //some blocks would not be processed correctly
-        var dontUseTileMapper = TileMapperBlacklist.INSTANCE.isBlacklisted(((IndexedBlock)tile.getState().getBlock()).getRegistryIndex());
+        if (tile == null || !filter.test(tile)) return null;
+        for (Processor<PartialTile> processor : ((ExtendedPlacementSettings) settings).getUnmappedProcessors()) {
 
-        if(dontUseTileMapper){
-            for(Processor<PartialTile> processor : settings.getTileProcessors()) {
-
-                if (tile == null || !filter.test(tile)) {
-                    tile = null;
-                    break;
-                }
-                tile=processBlacklisted(processor,tile,settings.getProcessorContext());
+            if (tile == null || !filter.test(tile)) {
+                tile = null;
+                break;
             }
-        } else {
-
-            for (Processor<PartialTile> processor : ((ExtendedPlacementSettings) settings).getUnmappedProcessors()) {
-
-                if (tile == null || !filter.test(tile)) {
-                    tile = null;
-                    break;
-                }
-                tile=processNotTargetted(processor, tile, settings.getProcessorContext());
-            }
-
-            tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
+            ProcessorContext processorContext = settings.getProcessorContext();
+            tile= processor.process(tile, processorContext);
         }
+
+        tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
         var ri = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
-        if(tile==null || ri == ((IndexedBlock) ModBlocks.ERROR_BLOCK).getRegistryIndex() || ri<0){
-            DbgKt.breakpoint();
-        }
         return tile;
     }
 
@@ -86,14 +55,5 @@ public class MixinStructureTemplate implements StreamedTemplate {
     @Overwrite(remap = false)
     public Iterator<PartialTile> getTiles(TilePredicate filter, PlacementSettings settings) {
         return new MappingIterator<PartialTile,PartialTile>(((List)this.tiles.get(filter)).iterator(), (PartialTile tile) -> tileMappingFunc(tile,filter,settings));
-    }
-
-    /*for profiling*/
-    private PartialTile processNotTargetted(Processor<PartialTile> processor, PartialTile tile, ProcessorContext processorContext) {
-        return processor.process(tile, processorContext);
-    }
-
-    private PartialTile processBlacklisted(Processor<PartialTile> processor, PartialTile tile, ProcessorContext processorContext) {
-        return processor.process(tile, processorContext);
     }
 }
