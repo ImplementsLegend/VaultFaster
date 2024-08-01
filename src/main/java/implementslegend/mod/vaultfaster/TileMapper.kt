@@ -1,5 +1,8 @@
 package implementslegend.mod.vaultfaster
 
+import implementslegend.mod.vaultfaster.interfaces.CachedPaletteContainer
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock
+import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer
 import implementslegend.mod.vaultfaster.mixin.PredicateIdAccessor
 import implementslegend.mod.vaultfaster.mixin.ProcessorPredicateAccessor
 import implementslegend.mod.vaultfaster.mixin.TileGroupsAccessor
@@ -21,7 +24,6 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraftforge.registries.ForgeRegistries
-import java.util.concurrent.atomic.AtomicBoolean
 
 /*
 * Template processor multi hash map; maps block numerical id -> list of tile processors

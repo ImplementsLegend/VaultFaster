@@ -1,6 +1,9 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.*;
+import implementslegend.mod.vaultfaster.interfaces.ExtendedPlacementSettings;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
+import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer;
 import iskallia.vault.core.util.iterator.MappingIterator;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;

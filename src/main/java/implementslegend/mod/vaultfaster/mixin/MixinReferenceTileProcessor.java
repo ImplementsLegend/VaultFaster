@@ -1,9 +1,7 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.CachedPaletteContainer;
-import implementslegend.mod.vaultfaster.TileMapperContainer;
+import implementslegend.mod.vaultfaster.interfaces.CachedPaletteContainer;
 import iskallia.vault.core.Version;
-import iskallia.vault.core.data.key.PaletteKey;
 import iskallia.vault.core.vault.Vault;
 import iskallia.vault.core.vault.VaultRegistry;
 import iskallia.vault.core.world.data.tile.PartialTile;

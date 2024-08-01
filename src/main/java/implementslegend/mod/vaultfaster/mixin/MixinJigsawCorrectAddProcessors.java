@@ -1,10 +1,9 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 import com.google.common.collect.Lists;
-import implementslegend.mod.vaultfaster.ExtendedPlacementSettings;
+import implementslegend.mod.vaultfaster.interfaces.ExtendedPlacementSettings;
 import iskallia.vault.core.Version;
 import iskallia.vault.core.data.key.PaletteKey;
-import iskallia.vault.core.world.processor.Palette;
 import iskallia.vault.core.world.processor.entity.EntityProcessor;
 import iskallia.vault.core.world.processor.tile.TileProcessor;
 import iskallia.vault.core.world.template.JigsawTemplate;

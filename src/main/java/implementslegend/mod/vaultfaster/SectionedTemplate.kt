@@ -1,5 +1,6 @@
 package implementslegend.mod.vaultfaster
 
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate
 import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.core.world.template.StaticTemplate
 import iskallia.vault.core.world.template.Template
@@ -8,12 +9,7 @@ import net.minecraft.core.SectionPos
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.ServerLevelAccessor
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.BiConsumer
-import java.util.function.BinaryOperator
-import java.util.function.Function
-import java.util.function.Supplier
 import java.util.stream.Collector
 import java.util.stream.Collectors
 

@@ -1,5 +1,6 @@
 package implementslegend.mod.vaultfaster
 
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock
 import net.minecraft.core.IdMapper
 import net.minecraft.world.level.block.Block
 import net.minecraftforge.registries.ForgeRegistries

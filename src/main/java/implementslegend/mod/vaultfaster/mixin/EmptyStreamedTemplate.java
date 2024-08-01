@@ -1,6 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.StreamedTemplate;
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
 import iskallia.vault.core.world.template.EmptyTemplate;

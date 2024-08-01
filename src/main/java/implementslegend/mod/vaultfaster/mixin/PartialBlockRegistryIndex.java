@@ -1,7 +1,7 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.FixatedBlockIDsKt;
-import implementslegend.mod.vaultfaster.IndexedBlock;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
 import iskallia.vault.core.world.data.tile.PartialBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;

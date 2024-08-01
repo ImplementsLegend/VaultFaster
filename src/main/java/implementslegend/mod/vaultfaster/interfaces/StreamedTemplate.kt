@@ -1,4 +1,4 @@
-package implementslegend.mod.vaultfaster
+package implementslegend.mod.vaultfaster.interfaces
 
 import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.core.world.data.tile.TilePredicate

@@ -1,13 +1,12 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.BatchSetBlockKt;
-import implementslegend.mod.vaultfaster.StreamedTemplate;
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.Template;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

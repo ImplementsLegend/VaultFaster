@@ -1,15 +1,14 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 
-import implementslegend.mod.vaultfaster.IndexedBlock;
+import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
 import iskallia.vault.core.world.data.tile.PartialBlock;
 import iskallia.vault.core.world.data.tile.PartialBlockState;
 import net.minecraft.world.level.block.Block;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+
 /*
 * comparison using registry indices
 * */

@@ -1,8 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import com.google.common.collect.Streams;
-import implementslegend.mod.vaultfaster.StreamedTemplate;
-import iskallia.vault.core.util.iterator.FlatteningIterator;
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
 import iskallia.vault.core.world.template.JigsawTemplate;
@@ -13,7 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;

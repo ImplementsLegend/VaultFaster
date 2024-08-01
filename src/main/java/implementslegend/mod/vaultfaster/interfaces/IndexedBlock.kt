@@ -1,4 +1,4 @@
-package implementslegend.mod.vaultfaster
+package implementslegend.mod.vaultfaster.interfaces
 
 interface IndexedBlock {
     val registryIndex:Int

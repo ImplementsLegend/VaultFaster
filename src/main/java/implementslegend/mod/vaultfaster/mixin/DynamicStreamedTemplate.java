@@ -1,7 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.DbgKt;
-import implementslegend.mod.vaultfaster.StreamedTemplate;
+import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
 import iskallia.vault.core.world.processor.Processor;
@@ -12,10 +11,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @Mixin(DynamicTemplate.class)
 public class DynamicStreamedTemplate implements StreamedTemplate {
@@ -41,7 +38,6 @@ public class DynamicStreamedTemplate implements StreamedTemplate {
                     tile = processor.process(tile, settings.getProcessorContext());
                 }
 
-                DbgKt.breakpoint();
                 return tile;
             }
         });

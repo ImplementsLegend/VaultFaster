@@ -1,11 +1,10 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.TileMapper;
-import implementslegend.mod.vaultfaster.TileMapperContainer;
+import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer;
 import iskallia.vault.core.world.processor.Palette;
 import iskallia.vault.core.world.processor.tile.TileProcessor;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
