@@ -26,11 +26,13 @@ public class MixinPalette implements TileMapperContainer {
     @NotNull
     @Override
     public TileMapper getTileMapper() {
-        if(mapper==null){
-            mapper=new TileMapper();
-            tileProcessors.forEach(mapper::addProcessor);
+        var privateMapper = mapper;
+        if(privateMapper==null){
+            privateMapper=new TileMapper();
+            mapper=privateMapper;
+            tileProcessors.forEach(privateMapper::addProcessor);
         }
-        return mapper;
+        return privateMapper;
     }
 
     @Inject(method = "processTile",at = @At("HEAD"),remap = false)

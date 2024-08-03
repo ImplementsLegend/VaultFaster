@@ -61,7 +61,7 @@ public class MixinLeveledProcessor {
 
     private  TileProcessor[] getOrCreateTable() {
         if(this.table==null) {
-            var table = new TileProcessor[ModConfigs.LEVELS_META.getMaxLevel()];
+            var table = new TileProcessor[ModConfigs.LEVELS_META.getMaxLevel()+1];
             for (Map.Entry<Integer, TileProcessor> entry : this.levels.entrySet()) {
                 for (int i = entry.getKey(); i < table.length; i++) {
                     table[i] = (TileProcessor) entry.getValue();
