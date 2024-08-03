@@ -118,7 +118,7 @@ class TileMapper() {
             val thisTier = this.getOrCreateTier(idx)
             thisTier.forEachIndexed {
                     idx, processors->
-                processors+=tier[idx]
+                if(start)processors.addAll(0,tier[idx]) else processors+=tier[idx]
             }
         }
 
