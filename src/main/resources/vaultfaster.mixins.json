@@ -1,4 +1,4 @@
-{
+    {
     "required": true,
     "minVersion": "0.8",
     "package": "implementslegend.mod.vaultfaster.mixin",
@@ -16,6 +16,8 @@
         "LevelChunkAccessor",
         "MeasurePerformance",
         "MixinBlockRegistryIndex",
+        "MixinCascade",
+        "MixinCascadeProperties",
         "MixinChunkedTemplate",
         "MixinJigsawCorrectAddProcessors",
         "MixinLeveledProcessor",
@@ -35,8 +37,8 @@
         "ProtoChunkAccessor",
         "StaticStreamedTemplate",
         "TileGroupsAccessor",
-        "VaultBypassMailbox",
-        "TreasureRoomFix"
+        "TreasureRoomFix",
+        "VaultBypassMailbox"
     ],
     "client": [
     ],
