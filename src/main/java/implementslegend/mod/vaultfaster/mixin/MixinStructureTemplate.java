@@ -45,7 +45,6 @@ public class MixinStructureTemplate implements StreamedTemplate {
         }
 
         tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
-        var ri = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
         return tile;
     }
 
