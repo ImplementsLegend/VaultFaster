@@ -35,7 +35,7 @@ public class ConcurrentGridGenerator {
     }
 
     @Inject(method = "generate(Liskallia/vault/core/vault/Vault;Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/level/ChunkPos;)V",at = @At(value = "INVOKE", target = "Liskallia/vault/core/util/ObjectCache;get(Ljava/lang/Object;)Ljava/lang/Object;"),locals = LocalCapture.CAPTURE_FAILEXCEPTION,remap = false)
-    private void concurrentCache(Vault vault, ServerLevelAccessor world, ChunkPos chunkPos, CallbackInfo ci, BlockPos pos1, BlockPos pos2, int offsetX, int offsetZ, int x, int z, RegionPos region, ChunkRandom random){
+    private void concurrentCache(Vault vault, ServerLevelAccessor world, ChunkPos chunkPos, CallbackInfo ci, BlockPos min, BlockPos max, int x, int z, RegionPos region, ChunkRandom random){
         cache.set(region,concurrentCache.getAt(region,((VaultGenerator)(Object)this).get(LAYOUT),vault,random));
     }
 }

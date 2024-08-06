@@ -42,16 +42,16 @@ object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent,ObjectiveTemplateData
                 BlockPos(0,1,0) to ModBlocks.LODESTONE.defaultBlockState()
             )
     private val MONOLITH_OBJECTIVE_TEMPLATE =
-        try {
+        /*try {
             dynamicTemplateOf(
                 BlockPos(0,0,0) to ModBlocks.MONOLITH.defaultBlockState().setValue(MonolithBlock.HALF, DoubleBlockHalf.LOWER),
                 BlockPos(0,1,0) to ModBlocks.MONOLITH.defaultBlockState().setValue(MonolithBlock.HALF, DoubleBlockHalf.UPPER),
             )
-        }catch (e:NoSuchFieldError){//3.13 made monolith single half; trying to access MonolithBlock.HALF will cause NoSuchFieldError
+        }catch (e:NoSuchFieldError){//3.13 made monolith single half; trying to access MonolithBlock.HALF will cause NoSuchFieldError*/
             dynamicTemplateOf(
                 BlockPos(0,0,0) to ModBlocks.MONOLITH.defaultBlockState()
             )
-        }
+        //}
     private val CRAKE_OBJECTIVE_TEMPLATE =
             dynamicTemplateOf(
                 BlockPos(0,0,0) to ModBlocks.CRAKE_COLUMN.defaultBlockState(),
@@ -63,10 +63,18 @@ object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent,ObjectiveTemplateData
                 BlockPos(0,1,0) to ModBlocks.OBELISK.defaultBlockState().setValue(ObeliskBlock.HALF, DoubleBlockHalf.UPPER),
             )
     private val HERALD_OBJECTIVE_TEMPLATE =
-            dynamicTemplateOf(
-                BlockPos(0,0,0) to ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.LOWER),
-                BlockPos(0,1,0) to ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.UPPER),
-            )
+        dynamicTemplateOf(
+            BlockPos(0,0,0) to ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.LOWER),
+            BlockPos(0,1,0) to ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.UPPER),
+        )
+    private val GRID_GATEWAY_OBJECTIVE_TEMPLATE =
+        dynamicTemplateOf(
+            BlockPos(0,0,0) to ModBlocks.GRID_GATEWAY.defaultBlockState()
+        )
+    private val OFFERING_BOSS_OBJECTIVE_TEMPLATE =
+        dynamicTemplateOf(
+            BlockPos(0,0,0) to ModBlocks.OFFERING_PILLAR.defaultBlockState()
+        )
 
     override fun createChild() = this
 
@@ -85,9 +93,11 @@ object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent,ObjectiveTemplateData
         when(objective){
             is ScavengerObjective -> SCAVENGER_OBJECTIVE_TEMPLATE
             is MonolithObjective -> MONOLITH_OBJECTIVE_TEMPLATE
-            is ObeliskObjective -> OBELISK_OBJECTIVE_TEMPLATE
+            is ObeliskObjective, is LegacyObeliskObjective -> OBELISK_OBJECTIVE_TEMPLATE
             is CrakePedestalObjective -> CRAKE_OBJECTIVE_TEMPLATE
             is LodestoneObjective -> LODESTONE_OBJECTIVE_TEMPLATE
+            is GridGatewayObjective -> GRID_GATEWAY_OBJECTIVE_TEMPLATE
+            is OfferingBossObjective -> OFFERING_BOSS_OBJECTIVE_TEMPLATE
             is HeraldObjective -> HERALD_OBJECTIVE_TEMPLATE//does not work for herald
             else -> null
         }
