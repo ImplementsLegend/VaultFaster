@@ -154,7 +154,6 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("blank:the_vault-1.18.2:3.15.1.3298")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     runtimeOnly    fg.deobf("blank:modular-routers-1.18.2:9.1.1-93")
     runtimeOnly    fg.deobf("blank:ferritecore:4.2.2-forge")
     runtimeOnly    fg.deobf("blank:jei-1.18.2:9.7.2.1001")
