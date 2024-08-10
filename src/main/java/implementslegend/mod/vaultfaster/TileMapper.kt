@@ -15,6 +15,8 @@ import iskallia.vault.core.world.processor.tile.LeveledTileProcessor
 import iskallia.vault.core.world.processor.tile.ReferenceTileProcessor
 import iskallia.vault.core.world.processor.tile.SpawnerElementTileProcessor
 import iskallia.vault.core.world.processor.tile.SpawnerTileProcessor
+import iskallia.vault.core.world.processor.tile.TemplateStackSpawnerProcessor
+import iskallia.vault.core.world.processor.tile.TemplateStackTileProcessor
 import iskallia.vault.core.world.processor.tile.TileProcessor
 import iskallia.vault.core.world.processor.tile.VaultLootTileProcessor
 import iskallia.vault.core.world.processor.tile.WeightedTileProcessor
@@ -89,7 +91,7 @@ class TileMapper() {
     @JvmOverloads
     fun addProcessor(processor: TileProcessor,start:Boolean=false){
         try {
-            if (processor is SpawnerTileProcessor || processor is WeightedTileProcessor) {
+            if (processor is SpawnerTileProcessor || processor is WeightedTileProcessor || processor is TemplateStackTileProcessor || processor is TemplateStackSpawnerProcessor) {
                 addProcessor((processor as ProcessorPredicateAccessor).predicate, processor,start=start)
             } else if (processor is BernoulliWeightedTileProcessor) {
                 addProcessor(processor.target, processor,start=start)
