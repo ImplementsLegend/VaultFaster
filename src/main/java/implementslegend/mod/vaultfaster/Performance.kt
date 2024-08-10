@@ -11,6 +11,7 @@ class Performance {
     var lastPrint = AtomicLong(start)
     var lastCount = 0
 
+    val chunksPerSec get()= count.get()*1000f/(System.currentTimeMillis()-start)
 
     fun record() {
         val c = count.incrementAndGet()

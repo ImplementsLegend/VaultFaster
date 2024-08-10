@@ -38,6 +38,6 @@ public abstract class MeasurePerformance extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> p_208054_, BlockPos p_208055_) {
-        p_208054_.add("generated chunks: "+performance.getCount());
+        p_208054_.add("generated chunks: "+performance.getCount()+", chunks per second: "+ performance.getChunksPerSec());
     }
 }
