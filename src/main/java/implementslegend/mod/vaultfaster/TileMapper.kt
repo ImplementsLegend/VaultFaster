@@ -26,6 +26,7 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraftforge.registries.ForgeRegistries
+import java.util.concurrent.atomic.AtomicReferenceArray
 
 /*
 * Template processor multi hash map; maps block numerical id -> list of tile processors
@@ -33,6 +34,17 @@ import net.minecraftforge.registries.ForgeRegistries
 * this is probably the most important optimisation in the entire mod
 *
 * */
+
+val AtomicReferenceArray<*>.indices get() = 0 until this.length()
+
+fun <T> AtomicReferenceArray<T>.forEachIndexed(fn:(index:Int,element:T)->Unit){
+    for(i in indices) {
+        fn(i, get(i))
+    }
+}
+
+
+private fun <E> AtomicReferenceArray<E>.getOrNull(i: Int): E? = if(i !in indices) null else get(i)
 
 class TileMapper() {
 
@@ -45,9 +57,9 @@ class TileMapper() {
      *
      * nuw multi-tier to preserve a bit of memory
      */
-    val mappingsTiered:Array<Array<ArrayList<TileProcessor>>?> = Array(BLOCKS.size() shr 8){
+    val mappingsTiered = AtomicReferenceArray(Array<Array<ArrayList<TileProcessor>>?>((BLOCKS.size() shr 8)+1){
         null
-    }
+    })
 
 
     /*
@@ -83,9 +95,15 @@ class TileMapper() {
 
     private fun getOrCreateTier(idx: Int): Array<ArrayList<TileProcessor>> {
         if(idx !in mappingsTiered.indices) return emptyArray()
-        return this.mappingsTiered[idx] ?:Array<ArrayList<TileProcessor>>(256){
+        return this.mappingsTiered.updateAndGet(idx){
+            old->
+            if(old===null) Array(256){
+                arrayListOf()
+            } else old
+        }!!
+            /*?:Array<ArrayList<TileProcessor>>(256){
             arrayListOf()
-        }.also { mappingsTiered[idx]= it }
+        }.also { mappingsTiered[idx]= it }*/
     }
 
     @JvmOverloads
@@ -144,6 +162,11 @@ class TileMapper() {
         getIndices(predicate).takeIf { indices -> indices.none { it<0 } }?.forEach {
             getOrCreateTier(it shr 8).let {
                 tier->
+                if(tier.isEmpty()){
+                    println(it shr 8)
+                    println(BLOCKS.size() shr 8)
+                    println(mappingsTiered.length())
+                }
                 val list = tier[it and 0xff]
                 if(start)list.add(0,processor)
                 else list+=processor

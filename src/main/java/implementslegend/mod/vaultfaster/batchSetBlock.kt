@@ -7,7 +7,6 @@ import iskallia.vault.VaultMod
 import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.core.world.template.Template
 import iskallia.vault.init.ModBlocks
-import net.minecraft.ReportedException
 import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.SectionPos
@@ -23,20 +22,14 @@ import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.entity.CommandBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.ChunkAccess
-import net.minecraft.world.level.chunk.ChunkStatus
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.ProtoChunk
 import net.minecraft.world.level.levelgen.Heightmap
-import net.minecraftforge.fml.loading.FMLEnvironment
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
-import kotlin.collections.LinkedHashSet
 
 
 private infix fun Int.rangeUntilWidth(i: Int): IntRange = this until (this+i)
@@ -55,48 +48,6 @@ value class TileResult(val result:Any){
         val sourcePositionsGetter = clazz.getField("sourcePositions")::get
     }
 }
-
-
-fun LevelAccessor.placeTiles(blocks: Iterator<PartialTile>, result_: Any?){
-    val result = result_?.let { TileResult(it) }
-    val nl = ArrayList<Pair<BlockPos,BlockState>>(4096)
-    val tiles = ArrayList<Pair<BlockPos,CompoundTag>>(4096)
-    blocks.forEachRemaining{
-            tile->
-        val state = tile.state
-            .asWhole()
-            .orElseGet {
-                if (FMLEnvironment.production) {
-                    VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
-                }
-                ModBlocks.ERROR_BLOCK.defaultBlockState()
-            }
-        val entity = tile.entity.asWhole().filter { !it.isEmpty }
-        if (entity.isPresent) {
-            val blockentity = getBlockEntity(tile.pos)
-            Clearable.tryClear(blockentity)
-        }
-        nl+=tile.pos to state
-        entity.ifPresent{
-            result?.placedBlockEntities?.add(tile)
-            tiles+=tile.pos to it
-        }
-    }
-    setBlocks(nl)
-    tiles.forEach {
-            (pos,tile)->
-        try {
-            val blockEntity = getBlockEntity(pos)
-
-            blockEntity?.load(tile)
-            if (blockEntity is CommandBlockEntity) {
-                scheduleTick(pos, Blocks.COMMAND_BLOCK, 1)
-            }
-
-        } catch (e:Exception){setBlock(pos,ModBlocks.ERROR_BLOCK.defaultBlockState(),0)}
-    }
-}
-
 
 fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?){
     val result = result_?.let { TileResult(it) }
@@ -292,9 +243,9 @@ fun ChunkAccess.setBlocks(sectionIdx: Int, blocks: Iterable<Pair<BlockPos, Block
                         level.profiler.pop()
                     }
                     if (section.getBlockState(j, k, l).`is`(block)) {
-                        if (!level.isClientSide && !level.captureBlockSnapshots) {
+                        /*if (!level.isClientSide && !level.captureBlockSnapshots) {
                             newState.onPlace(level, position, blockstate, false)
-                        }
+                        }*/
                         if (newState.hasBlockEntity()) {
                             var blockentity = this.getBlockEntity(position, LevelChunk.EntityCreationType.CHECK)
                             if (blockentity == null) {
