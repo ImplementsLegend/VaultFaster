@@ -10,8 +10,10 @@ class Performance {
     var start = System.currentTimeMillis()
     var lastPrint = AtomicLong(start)
     var lastCount = 0
+    var nspc = AtomicLong(0)
+    var lastChunk = AtomicLong(System.nanoTime())
 
-    val chunksPerSec get()= count.get()*1000f/(System.currentTimeMillis()-start)
+    val chunksPerSec get()= 1e9/nspc.get()
 
     fun record() {
         val c = count.incrementAndGet()
@@ -22,6 +24,12 @@ class Performance {
                 lastCount=c
                 it+printInterval
             }else it
+        }
+
+        val chunkTime= System.nanoTime()
+        val delta = chunkTime-lastChunk.getAndSet(chunkTime)
+        nspc.updateAndGet {
+            (it*0.999+0.001*delta).toLong()
         }
     }
 }
