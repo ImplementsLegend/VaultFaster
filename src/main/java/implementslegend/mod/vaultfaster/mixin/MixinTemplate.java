@@ -1,6 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.BatchSetBlockKt;
+import implementslegend.mod.vaultfaster.batchsetblocks.BatchSetBlockKt;
 import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;

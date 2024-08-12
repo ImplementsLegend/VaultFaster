@@ -1,6 +1,8 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.*;
+import implementslegend.mod.vaultfaster.batchsetblocks.BatchSetBlockKt;
+import implementslegend.mod.vaultfaster.batchsetblocks.BlocksToProtoSectionTask;
 import iskallia.vault.core.data.DataObject;
 import iskallia.vault.core.data.key.FieldKey;
 import iskallia.vault.core.event.Event;
@@ -39,7 +41,12 @@ public abstract class MixinVaultLayout {
 
         return instance.register(o,((DataObject)(Object)this).has(FILL_AIR)?(obj)->{}:(NoiseGenerationEvent.Data obj)->{
             List.of(0,1,2,3).parallelStream().map((section)-> {
-                BatchSetBlockKt.setBlocks(obj.getChunk(), section, BedrockFillKt.blocksToFill(obj.getChunk().getPos().getWorldPosition().atY(16*section-obj.getGenRegion().getMinBuildHeight())),true);
+                (new BlocksToProtoSectionTask(obj.getChunk()))
+                        .setBlocks(
+                                section,
+                                BedrockFillKt.blocksToFill(obj.getChunk().getPos().getWorldPosition().atY(16*section-obj.getGenRegion().getMinBuildHeight())),
+                                true
+                        );
                 return Unit.INSTANCE;
             }).collect(Collectors.toList());
             obj.getChunk().getHeightmaps().forEach((entry)->{//batchSetBlocks skips heightmap updates; must be done manually
