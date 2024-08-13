@@ -5,6 +5,7 @@ import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.core.world.template.StaticTemplate
 import iskallia.vault.core.world.template.Template
 import iskallia.vault.core.world.template.configured.ConfiguredTemplate
+import net.minecraft.Util
 import net.minecraft.core.SectionPos
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.ServerLevelAccessor
@@ -26,7 +27,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
     }
 
     private fun generate() {
-        sections.completeAsync {
+        sections.completeAsync ({
 
             val privateHashMap:LinkedHashMap<SectionPos,StaticTemplate> =
                     LinkedHashMap((base.parent as StreamedTemplate).getTileStream(Template.ALL_TILES, base.settings)
@@ -49,7 +50,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
                 (template.entities as ArrayList).trimToSize()
             }
             privateHashMap
-        }
+        },Util.backgroundExecutor())
 
     }
 
