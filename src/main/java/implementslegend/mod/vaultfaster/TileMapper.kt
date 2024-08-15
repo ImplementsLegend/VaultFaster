@@ -131,6 +131,12 @@ class TileMapper() {
     }
 
     private fun addFlattening(processor:ReferenceTileProcessor, start: Boolean = false){
+        (processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.v1_20).tileProcessors.let {
+            if (start)it.reversed() else it
+        }.forEach {
+            this.addProcessor(it,start)
+        }
+        /*
         val otherTileMapper = ((processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.v1_20) as TileMapperContainer).tileMapper
         otherTileMapper.mappingsTiered.forEachIndexed{
                 idx,tier->
@@ -146,7 +152,7 @@ class TileMapper() {
                 list->
             if(start)list.addAll(0,otherTileMapper.unconditional)
             else list+=otherTileMapper.unconditional
-        }
+        }*/
     }
 
     private fun addUnconditional(processor: TileProcessor,start:Boolean=false) {
