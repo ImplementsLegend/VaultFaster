@@ -28,7 +28,7 @@ import java.util.stream.Stream
 
 infix fun Int.rangeUntilWidth(i: Int): IntRange = this until (this+i)
 
-private val delayExecutor = CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS, Util.backgroundExecutor())
+private val delayExecutor = CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS, GENERATOR_THREAD_POOL)
 
 private typealias CollectionResult = Pair<ArrayList<Pair<BlockPos, BlockState>>, ArrayList<PartialTile>>
 
