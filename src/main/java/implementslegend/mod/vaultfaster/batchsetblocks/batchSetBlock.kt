@@ -1,5 +1,6 @@
 package implementslegend.mod.vaultfaster.batchsetblocks
 
+import implementslegend.mod.vaultfaster.GENERATOR_THREAD_POOL
 import implementslegend.mod.vaultfaster.mixin.ProtoChunkAccessor
 import iskallia.vault.VaultMod
 import iskallia.vault.core.world.data.tile.PartialTile
@@ -42,7 +43,7 @@ fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?) {
             val state = tile.state
                 .asWhole()
                 .orElseGet {
-                    VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
+                    //VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
                     ModBlocks.ERROR_BLOCK.defaultBlockState()
                 }
             val entityTag = tile.entity.asWhole().filter { !it.isEmpty }
@@ -117,44 +118,3 @@ fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?) {
         }
     }
 }
-
-/*
-fun LevelAccessor.setBlocks(blocks: List<Pair<BlockPos, BlockState>>) =
-    blocks
-        .groupBy { SectionPos.of(it.first) }
-        .entries.map { (sectionPos, pairs) ->
-            val chunk = getChunk(sectionPos.x, sectionPos.z)
-            val task = when (chunk) {
-                is LevelChunk -> BlocksToLevelSectionTask(chunk)
-                is ProtoChunk -> BlocksToProtoSectionTask(chunk)
-                else -> null
-            }
-            chunk to (task?.setBlocks((sectionPos.y - (chunk.minBuildHeight shr 4)), pairs) ?: emptyList())
-        }
-        .takeIf { this is ServerLevel }?.let { data ->
-            data.forEach { (chunk, posList) ->
-                synchronized(chunk) {
-                    (chunk as? ProtoChunkAccessor)?.lights?.addAll(posList)
-                }
-            }
-
-            data.map { it.first.pos }.distinct().forEach { pos ->
-                delayExecutor.execute { //no delay might be enough on slow computers
-                    this.players().forEach { player ->
-                        val lc = getChunk(pos.x, pos.z) as LevelChunk
-                        (player as ServerPlayer).connection.send(
-                            ClientboundLevelChunkWithLightPacket(
-                                lc,
-                                lightEngine,
-                                null,
-                                null,
-                                false
-                            )
-                        )
-                    }
-                }
-            }
-        }
-
-
-*/

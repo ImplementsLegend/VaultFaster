@@ -21,7 +21,6 @@
         "MixinChunkedTemplate",
         "MixinJigsawCorrectAddProcessors",
         "MixinLeveledProcessor",
-        "MixinPalette",
         "MixinPartBlockProperties",
         "MixinPartialBlockState",
         "MixinPlacementSettings",
