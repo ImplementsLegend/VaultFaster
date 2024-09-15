@@ -1,11 +1,10 @@
 package implementslegend.mod.vaultfaster.batchsetblocks
 
-import implementslegend.mod.vaultfaster.GENERATOR_THREAD_POOL
+import implementslegend.mod.vaultfaster.GENERATOR_EXECUTOR
 import implementslegend.mod.vaultfaster.mixin.ProtoChunkAccessor
 import iskallia.vault.VaultMod
 import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.init.ModBlocks
-import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.SectionPos
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
@@ -29,7 +28,12 @@ import java.util.stream.Stream
 
 infix fun Int.rangeUntilWidth(i: Int): IntRange = this until (this+i)
 
-private val delayExecutor = CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS, GENERATOR_THREAD_POOL)
+private val delayExecutor = try {
+    CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS, GENERATOR_EXECUTOR)
+} catch (e:Throwable){
+    e.printStackTrace()
+    throw Exception(e)
+}
 
 private typealias CollectionResult = Pair<ArrayList<Pair<BlockPos, BlockState>>, ArrayList<PartialTile>>
 

@@ -27,6 +27,7 @@
         "MixinReferenceTileProcessor",
         "MixinStructureTemplate",
         "MixinTemplate",
+        "MixinTemplateProcessorModifier",
         "MixinVaultLayout",
         "NoBiomeDecorations",
         "PartialBlockIDAccessor",

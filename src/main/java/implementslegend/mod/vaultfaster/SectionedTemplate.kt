@@ -5,7 +5,6 @@ import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.core.world.template.StaticTemplate
 import iskallia.vault.core.world.template.Template
 import iskallia.vault.core.world.template.configured.ConfiguredTemplate
-import net.minecraft.Util
 import net.minecraft.core.SectionPos
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.ServerLevelAccessor
@@ -13,9 +12,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collector
-import java.util.stream.Collectors
 
-val GENERATOR_THREAD_POOL = Executors.newCachedThreadPool{
+val GENERATOR_EXECUTOR = Executors.newCachedThreadPool{
     Thread(it).apply {
         name="Vault-Generator-$name"
     }
@@ -56,7 +54,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
                 (template.entities as ArrayList).trimToSize()
             }
             privateHashMap
-        }, GENERATOR_THREAD_POOL)
+        }, GENERATOR_EXECUTOR)
 
     }
 
@@ -66,7 +64,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
             sections.thenAcceptAsync({
                 val sectionPos = SectionPos.of(pos, it1)
                 it[sectionPos]?.place(world, base.settings)//?: println("no section at $sectionPos")
-            }, GENERATOR_THREAD_POOL)
+            }, GENERATOR_EXECUTOR)
         }.forEach {
             it.get()
         }
