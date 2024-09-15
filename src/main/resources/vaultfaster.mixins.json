@@ -30,6 +30,7 @@
         "MixinTemplateProcessorModifier",
         "MixinVaultLayout",
         "NoBiomeDecorations",
+        "OctahedralGroupFix",
         "PartialBlockIDAccessor",
         "PartialBlockRegistryIndex",
         "PredicateIdAccessor",
