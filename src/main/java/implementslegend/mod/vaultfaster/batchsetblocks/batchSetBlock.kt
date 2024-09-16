@@ -14,6 +14,7 @@ import net.minecraft.server.level.WorldGenRegion
 import net.minecraft.world.Clearable
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.CommandBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
@@ -50,11 +51,7 @@ fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?) {
                     //VaultMod.LOGGER.error("Could not resolve tile '$tile' at (${tile.pos.x}, ${tile.pos.y}, ${tile.pos.z})")
                     ModBlocks.ERROR_BLOCK.defaultBlockState()
                 }
-            val entityTag = tile.entity.asWhole().filter { !it.isEmpty }
-            entityTag.ifPresent {
-                val blockentity = getBlockEntity(tile.pos)
-                Clearable.tryClear(blockentity)
-            }
+            val entityTag = tile.entity.asWhole().filter { state.hasBlockEntity() && !it.isEmpty }
             states += tile.pos to state
             entityTag.ifPresent { tiles.add(tile) }
         },
@@ -106,10 +103,15 @@ fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?) {
             }
         }
     tiles.forEach { partial ->
+        val pos = partial.pos
+        val entityTag = partial.entity.asWhole()
         try {
-            val blockEntity = getBlockEntity(partial.pos)
+            val blockEntity = getBlockEntity(pos)
+            entityTag.ifPresent {
+                Clearable.tryClear(blockEntity)
+            }
 
-            blockEntity?.load(partial.entity.asWhole().get())
+            blockEntity?.load(entityTag.get())
             if (blockEntity is CommandBlockEntity) {
                 scheduleTick(partial.pos, Blocks.COMMAND_BLOCK, 1)
             }

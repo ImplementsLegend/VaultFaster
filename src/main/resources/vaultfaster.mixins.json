@@ -18,6 +18,7 @@
         "MixinBlockRegistryIndex",
         "MixinCascade",
         "MixinCascadeProperties",
+        "MixinChunkAccess",
         "MixinChunkedTemplate",
         "MixinJigsawCorrectAddProcessors",
         "MixinLeveledProcessor",
