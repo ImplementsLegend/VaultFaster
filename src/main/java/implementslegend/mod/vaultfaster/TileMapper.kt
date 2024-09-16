@@ -2,9 +2,9 @@ package implementslegend.mod.vaultfaster
 
 import implementslegend.mod.vaultfaster.interfaces.CachedPaletteContainer
 import implementslegend.mod.vaultfaster.interfaces.IndexedBlock
-import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer
 import implementslegend.mod.vaultfaster.mixin.PredicateIdAccessor
 import implementslegend.mod.vaultfaster.mixin.ProcessorPredicateAccessor
+import implementslegend.mod.vaultfaster.mixin.ReferenceProcessorAccessor
 import implementslegend.mod.vaultfaster.mixin.TileGroupsAccessor
 import iskallia.vault.core.Version
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt
@@ -136,10 +136,22 @@ class TileMapper() {
     }
 
     private fun addFlattening(processor:ReferenceTileProcessor, start: Boolean = false){
-        (processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.v1_20).tileProcessors.let {
-            if (start)it.reversed() else it
-        }.forEach {
-            this.addProcessor(it,start)
+        val accessor = processor as ReferenceProcessorAccessor
+        when(accessor.pool.size ){
+            0->{/*do nothing*/}
+            1->{
+                /*flatten as before*/
+                (processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.v1_20).tileProcessors.let {
+                    if (start)it.reversed() else it
+                }.forEach {
+                    this.addProcessor(it,start)
+                }
+            }
+            else->{
+                /*good luck*/
+                this.addUnconditional(processor)
+            }
+
         }
     }
 

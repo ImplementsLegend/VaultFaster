@@ -39,6 +39,7 @@
         "PredicateIdAccessor",
         "ProcessorPredicateAccessor",
         "ProtoChunkAccessor",
+        "ReferenceProcessorAccessor",
         "StaticStreamedTemplate",
         "TileGroupsAccessor",
         "TreasureRoomFix",
