@@ -33,7 +33,7 @@
         "NoBiomeDecorations",
         "OctahedralGroupFix",
         "PartialBlockIDAccessor",
-        "PartialBlockRegistryIndex",
+        "MixinPartialBlock",
         "PredicateIdAccessor",
         "ProcessorPredicateAccessor",
         "ProtoChunkAccessor",

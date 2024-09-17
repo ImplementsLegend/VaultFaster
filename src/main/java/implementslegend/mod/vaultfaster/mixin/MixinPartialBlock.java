@@ -23,12 +23,13 @@ import java.util.Optional;
 * */
 
 @Mixin(PartialBlock.class)
-public class PartialBlockRegistryIndex implements IndexedBlock {
+public class MixinPartialBlock implements IndexedBlock {
     @Shadow protected ResourceLocation id;
     private int regIdx = -69420;
 
     @Override
     public int getRegistryIndex(){
+        if(id==null)regIdx=-666;
         if(regIdx==-69420){
             regIdx= FixatedBlockIDsKt.getIdForBlock(((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getValue(this.id));
             if(regIdx==0 ) {
