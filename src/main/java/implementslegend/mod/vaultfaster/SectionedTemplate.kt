@@ -11,6 +11,7 @@ import net.minecraft.world.level.ServerLevelAccessor
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collector
 
@@ -18,12 +19,12 @@ val GENERATOR_EXECUTOR =  Executors.newFixedThreadPool(Runtime.getRuntime().avai
     Thread(it).apply {
         name="Vault-Generator-$name"
     }
-}.apply { (this as? ThreadPoolExecutor)?.corePoolSize=4 }
+}.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=6;setKeepAliveTime(10,TimeUnit.SECONDS) } }
 val ROOM_GENERATOR_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
     Thread(it).apply {
         name="Vault-Room-Generator-$name"
     }
-}.apply { (this as? ThreadPoolExecutor)?.corePoolSize=4 }
+}.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=3;setKeepAliveTime(10,TimeUnit.SECONDS) } }
 
 
 class SectionedTemplate(val base:ConfiguredTemplate) {
