@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -40,15 +41,22 @@ public abstract class MixinVaultLayout {
     private Event batchFill(NoiseGenerationEvent instance, Object o, Consumer consumer){
 
         return instance.register(o,((DataObject)(Object)this).has(FILL_AIR)?(obj)->{}:(NoiseGenerationEvent.Data obj)->{
-            List.of(0,1,2,3).parallelStream().map((section)-> {
-                (new BlocksToProtoSectionTask(obj.getChunk()))
-                        .setBlocks(
-                                section,
-                                BedrockFillKt.blocksToFill(obj.getChunk().getPos().getWorldPosition().atY(16*section-obj.getGenRegion().getMinBuildHeight())),
-                                true
-                        );
-                return Unit.INSTANCE;
-            }).collect(Collectors.toList());
+            List.of(0,1,2,3).stream().map((section)->
+                SectionedTemplateKt.getGENERATOR_EXECUTOR().submit(()->{
+                    (new BlocksToProtoSectionTask(obj.getChunk()))
+                            .setBlocks(
+                                    section,
+                                    BedrockFillKt.blocksToFill(obj.getChunk().getPos().getWorldPosition().atY(16 * section - obj.getGenRegion().getMinBuildHeight())),
+                                    true
+                            );
+                })
+            ).forEach((it)-> {
+                try {
+                    it.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             obj.getChunk().getHeightmaps().forEach((entry)->{//batchSetBlocks skips heightmap updates; must be done manually
                 for(var x = 0;x<16;x++) {
                     for(var z = 0;z<16;z++) {

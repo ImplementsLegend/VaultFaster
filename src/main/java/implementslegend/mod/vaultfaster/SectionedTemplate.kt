@@ -10,19 +10,21 @@ import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.ServerLevelAccessor
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collector
 
-val GENERATOR_EXECUTOR = Executors.newCachedThreadPool{
+val GENERATOR_EXECUTOR =  Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
     Thread(it).apply {
         name="Vault-Generator-$name"
     }
-}
-val ROOM_GENERATOR_EXECUTOR = Executors.newCachedThreadPool{
+}.apply { (this as? ThreadPoolExecutor)?.corePoolSize=4 }
+val ROOM_GENERATOR_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
     Thread(it).apply {
         name="Vault-Room-Generator-$name"
     }
-}
+}.apply { (this as? ThreadPoolExecutor)?.corePoolSize=4 }
+
 
 class SectionedTemplate(val base:ConfiguredTemplate) {
 
