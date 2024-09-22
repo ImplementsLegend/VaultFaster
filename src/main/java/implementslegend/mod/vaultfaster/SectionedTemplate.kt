@@ -40,7 +40,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
                         ).mapValues { (k, v) ->
                             StaticTemplate((v as ArrayList).apply { trimToSize() }, ArrayList(128))
                         })
-                base.parent.getEntities(Template.ALL_ENTITIES).forEach {
+                base.parent.getEntities(Template.ALL_ENTITIES,base.settings).forEach {
                     val secpos = SectionPos.of(it.blockPos)
                     (privateHashMap.computeIfAbsent(secpos) {
                         StaticTemplate(

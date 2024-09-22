@@ -15,8 +15,6 @@ import java.util.Map;
 @Mixin(PartialBlockProperties.class)
 public class MixinPartBlockProperties  {
 
-
-
     @ModifyVariable(method = "<init>", at = @At(value = "HEAD"), argsOnly = true)
     private static Map useLinkedHashMap(Map values){
         return new LinkedHashMap<String,String>(values);

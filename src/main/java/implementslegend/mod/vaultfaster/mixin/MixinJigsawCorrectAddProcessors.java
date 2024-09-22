@@ -42,6 +42,8 @@ public class MixinJigsawCorrectAddProcessors {
         ((ExtendedPlacementSettings)settings).addProcessorAtBegining(TileProcessor.ofJigsaw());
         ((ExtendedPlacementSettings)settings).addProcessorAtBegining( TileProcessor.translate(offset));
         ((ExtendedPlacementSettings)settings).addProcessorAtBegining( TileProcessor.rotate(rotation, target, true));
+        settings.getEntityProcessors().add(0, EntityProcessor.translate(offset));
+        settings.getEntityProcessors().add(0, EntityProcessor.rotate(rotation, target, true));
 
         ci.cancel();
 
