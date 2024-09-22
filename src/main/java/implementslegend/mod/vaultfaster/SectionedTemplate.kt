@@ -18,6 +18,11 @@ val GENERATOR_EXECUTOR = Executors.newCachedThreadPool{
         name="Vault-Generator-$name"
     }
 }
+val ROOM_GENERATOR_EXECUTOR = Executors.newCachedThreadPool{
+    Thread(it).apply {
+        name="Vault-Room-Generator-$name"
+    }
+}
 
 class SectionedTemplate(val base:ConfiguredTemplate) {
 
@@ -54,7 +59,7 @@ class SectionedTemplate(val base:ConfiguredTemplate) {
                 (template.entities as ArrayList).trimToSize()
             }
             privateHashMap
-        }, GENERATOR_EXECUTOR)
+        }, ROOM_GENERATOR_EXECUTOR)
 
     }
 
