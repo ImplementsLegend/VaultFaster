@@ -14,17 +14,28 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collector
-
+/*
 val GENERATOR_EXECUTOR =  Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
     Thread(it).apply {
         name="Vault-Generator-$name"
     }
-}.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=6;setKeepAliveTime(10,TimeUnit.SECONDS) } }
+}.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=1;setKeepAliveTime(10,TimeUnit.SECONDS) } }
 val ROOM_GENERATOR_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
     Thread(it).apply {
         name="Vault-Room-Generator-$name"
     }
 }.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=3;setKeepAliveTime(10,TimeUnit.SECONDS) } }
+*/
+val GENERATOR_EXECUTOR = overflowExecutor(Runtime.getRuntime().availableProcessors(), overflowThreads = 1, poolTaskCapacity = 100){
+    Thread(it).apply {
+        name="Vault-Generator-$name"
+    }
+}
+val ROOM_GENERATOR_EXECUTOR = overflowExecutor(1+Runtime.getRuntime().availableProcessors()/2, overflowThreads = 1, poolTaskCapacity = 14){
+    Thread(it).apply {
+        name="Vault-Room-Generator-$name"
+    }
+}
 
 
 class SectionedTemplate(val base:ConfiguredTemplate) {
