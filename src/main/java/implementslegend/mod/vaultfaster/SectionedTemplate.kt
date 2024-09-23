@@ -26,12 +26,12 @@ val ROOM_GENERATOR_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().
     }
 }.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=3;setKeepAliveTime(10,TimeUnit.SECONDS) } }
 */
-val GENERATOR_EXECUTOR = overflowExecutor(Runtime.getRuntime().availableProcessors(), overflowThreads = 1, poolTaskCapacity = 100){
+val GENERATOR_EXECUTOR = overflowExecutor(Runtime.getRuntime().availableProcessors(), overflowThreads = 1, poolTaskCapacity = 135){
     Thread(it).apply {
         name="Vault-Generator-$name"
     }
 }
-val ROOM_GENERATOR_EXECUTOR = overflowExecutor(1+Runtime.getRuntime().availableProcessors()/2, overflowThreads = 1, poolTaskCapacity = 14){
+val ROOM_GENERATOR_EXECUTOR = overflowExecutor(1+Runtime.getRuntime().availableProcessors()/2, overflowThreads = 1, poolTaskCapacity = 8){
     Thread(it).apply {
         name="Vault-Room-Generator-$name"
     }
