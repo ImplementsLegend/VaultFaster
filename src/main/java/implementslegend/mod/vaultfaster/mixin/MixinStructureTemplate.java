@@ -34,17 +34,8 @@ public class MixinStructureTemplate implements StreamedTemplate {
         tile = tile.copy();
         var regIndex = ((IndexedBlock) tile.getState().getBlock()).getRegistryIndex();
         if (tile == null || !filter.test(tile)) return null;
-        for (Processor<PartialTile> processor : ((ExtendedPlacementSettings) settings).getUnmappedProcessors()) {
 
-            if (tile == null || !filter.test(tile)) {
-                tile = null;
-                break;
-            }
-            ProcessorContext processorContext = settings.getProcessorContext();
-            tile= processor.process(tile, processorContext);
-        }
-
-        tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext());
+        tile=((TileMapperContainer) settings).getTileMapper().mapBlock(tile, settings.getProcessorContext(),Integer.MIN_VALUE);
         return tile;
     }
 

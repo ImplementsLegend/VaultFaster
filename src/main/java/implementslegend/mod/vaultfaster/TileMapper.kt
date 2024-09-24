@@ -35,65 +35,74 @@ import java.util.concurrent.atomic.AtomicReferenceArray
 *
 * */
 
+typealias TileProcessors = ArrayList<IndexedValue<TileProcessor>>
+
 val AtomicReferenceArray<*>.indices get() = 0 until this.length()
 
-fun <T> AtomicReferenceArray<T>.forEachIndexed(fn:(index:Int,element:T)->Unit){
-    for(i in indices) {
-        fn(i, get(i))
-    }
-}
-
-
-private fun <E> AtomicReferenceArray<E>.getOrNull(i: Int): E? = if(i !in indices) null else get(i)
 
 class TileMapper() {
 
     //all processors for which numerical ids couldn't be determined
-    val unconditional:ArrayList<TileProcessor> = arrayListOf()
+    val unconditional:TileProcessors = arrayListOf()
     /*
      * main table for storing all the mappings
      * idx: numerical id of block
      * value: list of applicable tile processors
      *
-     * nuw multi-tier to preserve a bit of memory
+     * now multi-tier to preserve a bit of memory
      */
-    val mappingsTiered = AtomicReferenceArray(Array<Array<ArrayList<TileProcessor>>?>((BLOCKS.size() shr 8)+1){
+    var tail = 0
+    var head = 0
+
+    val mappingsTiered = Array<Array<TileProcessors>?>((BLOCKS.size() shr 8)+1){
         null
-    })
+    }
+
 
 
     /*
     * applies tile processors to a tile
     * */
-    fun mapBlock(tile: PartialTile?, ctx: ProcessorContext):PartialTile? {
+    fun mapBlock(tile: PartialTile?, ctx: ProcessorContext, startIdx:Int=Int.MIN_VALUE):PartialTile? {
         val idx = ((tile?:return null).state.block as IndexedBlock).registryIndex
         var newTile:PartialTile =tile
-        newTile = mapUnconditional(idx, newTile, ctx)?:return null
-        newTile = mapConditional(idx, newTile, ctx)?:return null
-        return newTile
 
-    }
+        val unconditionalMappings = unconditional
+        val conditionalMappings = mappingsTiered.getOrNull(idx shr 8)?.getOrNull(idx and 0xff)?: emptyList()
 
-    private fun mapUnconditional(idx:Int,tile:PartialTile,ctx:ProcessorContext):PartialTile?{
-        var newTile:PartialTile? =tile
+        var i1 = 0
+        var i2 = 0
+        for (mp in unconditionalMappings)if(mp.index<startIdx)i1++ else break
+        for (mp in conditionalMappings)if(mp.index<startIdx)i2++ else break
+        while(i1 in unconditionalMappings.indices && i2 in conditionalMappings.indices){
+            if(unconditionalMappings[i1].index>conditionalMappings[i2].index){
 
-        for(tileProcessor in unconditional){
-            newTile=tileProcessor.process(newTile?:return null,ctx)
-            if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx)
+                newTile=conditionalMappings[i2].value.process(newTile,ctx)
+                if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2].index)
+                i2++
+            }else{
+
+                newTile=unconditionalMappings[i1].value.process(newTile,ctx)
+                if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1].index)
+                i1++
+            }
+        }
+        for (i2b in i2 until conditionalMappings.size){
+            newTile=conditionalMappings[i2b].value.process(newTile,ctx)
+            if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2b].index)
+
+        }
+
+        for (i1b in i1 until unconditionalMappings.size){
+            newTile=unconditionalMappings[i1b].value.process(newTile,ctx)
+            if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1b].index)
+
         }
         return newTile
-    }
-    private fun mapConditional(idx:Int,tile:PartialTile,ctx:ProcessorContext):PartialTile?{
 
-        var newTile:PartialTile? =tile
-        for(tileProcessor in mappingsTiered.getOrNull(idx shr 8)?.getOrNull(idx and 0xff)?: emptyList()){
-            newTile=tileProcessor.process(newTile?:return null,ctx)
-            if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx)
-        }
-        return newTile
     }
 
-    private fun getOrCreateTier(idx: Int): Array<ArrayList<TileProcessor>> {
+    private fun getOrCreateTier(idx: Int): Array<TileProcessors> {
         if(idx !in mappingsTiered.indices) return emptyArray()
         return this.mappingsTiered.updateAndGet(idx){
             old->
@@ -101,9 +110,6 @@ class TileMapper() {
                 arrayListOf()
             } else old
         }!!
-            /*?:Array<ArrayList<TileProcessor>>(256){
-            arrayListOf()
-        }.also { mappingsTiered[idx]= it }*/
     }
 
     @JvmOverloads
@@ -136,30 +142,13 @@ class TileMapper() {
         }.forEach {
             this.addProcessor(it,start)
         }
-        /*
-        val otherTileMapper = ((processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.v1_20) as TileMapperContainer).tileMapper
-        otherTileMapper.mappingsTiered.forEachIndexed{
-                idx,tier->
-            if(tier===null)return@forEachIndexed
-            val thisTier = this.getOrCreateTier(idx)
-            thisTier.forEachIndexed {
-                    idx, processors->
-                if(start)processors.addAll(0,tier[idx]) else processors+=tier[idx]
-            }
-        }
-
-        unconditional.let {
-                list->
-            if(start)list.addAll(0,otherTileMapper.unconditional)
-            else list+=otherTileMapper.unconditional
-        }*/
     }
 
     private fun addUnconditional(processor: TileProcessor,start:Boolean=false) {
         unconditional.let {
                 list->
-            if(start)list.add(0,processor)
-            else list+=processor
+            if(start)list.add(0,IndexedValue(--head,processor))
+            else list+=IndexedValue(tail++,processor)
         }
     }
 
@@ -168,14 +157,9 @@ class TileMapper() {
         getIndices(predicate).takeIf { indices -> indices.none { it<0 } }?.forEach {
             getOrCreateTier(it shr 8).let {
                 tier->
-                if(tier.isEmpty()){
-                    println(it shr 8)
-                    println(BLOCKS.size() shr 8)
-                    println(mappingsTiered.length())
-                }
                 val list = tier[it and 0xff]
-                if(start)list.add(0,processor)
-                else list+=processor
+                if(start)list.add(0,IndexedValue(--head,processor))
+                else list+=IndexedValue(tail++,processor)
             }
         }?: run {
             addUnconditional(processor,start)
@@ -184,6 +168,8 @@ class TileMapper() {
 
 
 }
+
+private fun <T> Array<T>.updateAndGet(idx: Int, update:(T)->T): T = update(this[idx]).also { this[idx]=it }
 
 
 /**
