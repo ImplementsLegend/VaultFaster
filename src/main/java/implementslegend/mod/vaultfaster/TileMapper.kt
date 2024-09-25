@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray
 
 typealias TileProcessors = ArrayList<IndexedValue<TileProcessor>>
 
-val AtomicReferenceArray<*>.indices get() = 0 until this.length()
 
 
 class TileMapper() {

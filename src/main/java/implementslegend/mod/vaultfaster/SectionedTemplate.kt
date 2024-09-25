@@ -14,18 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.Collector
-/*
-val GENERATOR_EXECUTOR =  Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
-    Thread(it).apply {
-        name="Vault-Generator-$name"
-    }
-}.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=1;setKeepAliveTime(10,TimeUnit.SECONDS) } }
-val ROOM_GENERATOR_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()){
-    Thread(it).apply {
-        name="Vault-Room-Generator-$name"
-    }
-}.apply { (this as? ThreadPoolExecutor)?.apply { corePoolSize=3;setKeepAliveTime(10,TimeUnit.SECONDS) } }
-*/
+
 val GENERATOR_EXECUTOR = overflowExecutor(Runtime.getRuntime().availableProcessors(), overflowThreads = 1, poolTaskCapacity = 135){
     Thread(it).apply {
         name="Vault-Generator-$name"
