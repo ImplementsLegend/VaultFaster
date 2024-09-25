@@ -31,6 +31,7 @@
         "MixinTemplate",
         "MixinTemplateProcessorModifier",
         "MixinVaultLayout",
+        "MixinWeightedProcessor",
         "NoBiomeDecorations",
         "OctahedralGroupFix",
         "PartialBlockIDAccessor",
