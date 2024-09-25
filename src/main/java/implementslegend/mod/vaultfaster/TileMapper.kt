@@ -77,24 +77,24 @@ class TileMapper() {
         while(i1 in unconditionalMappings.indices && i2 in conditionalMappings.indices){
             if(unconditionalMappings[i1].index>conditionalMappings[i2].index){
 
-                newTile=conditionalMappings[i2].value.process(newTile,ctx)
+                newTile=conditionalMappings[i2].value.process(newTile,ctx)?:return null
                 if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2].index)
                 i2++
             }else{
 
-                newTile=unconditionalMappings[i1].value.process(newTile,ctx)
+                newTile=unconditionalMappings[i1].value.process(newTile,ctx)?:return null
                 if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1].index)
                 i1++
             }
         }
         for (i2b in i2 until conditionalMappings.size){
-            newTile=conditionalMappings[i2b].value.process(newTile,ctx)
+            newTile=conditionalMappings[i2b].value.process(newTile,ctx)?:return null
             if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2b].index)
 
         }
 
         for (i1b in i1 until unconditionalMappings.size){
-            newTile=unconditionalMappings[i1b].value.process(newTile,ctx)
+            newTile=unconditionalMappings[i1b].value.process(newTile,ctx)?:return null
             if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1b].index)
 
         }
