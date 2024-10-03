@@ -141,7 +141,7 @@ class TileMapper() {
             0->{/*do nothing*/}
             1->{
                 /*flatten as before*/
-                (processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.v1_20).tileProcessors.let {
+                (processor as CachedPaletteContainer).getCachedPaletteForVersion(Version.latest()).tileProcessors.let {
                     if (start)it.reversed() else it
                 }.forEach {
                     this.addProcessor(it,start)
