@@ -2,6 +2,7 @@ package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
 import iskallia.vault.block.HeraldControllerBlock;
+import iskallia.vault.block.PlaceholderBlock;
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt;
 import iskallia.vault.core.world.data.tile.PartialBlockState;
 import iskallia.vault.core.world.data.tile.PartialTile;
@@ -32,9 +33,12 @@ public class HeraldFix {
         if(path.equals("config/the_vault/gen/1.0/structures/vault/starts/herald.nbt")) {
             var pos = new BlockPos.MutableBlockPos(0,0,0);
             var found = new Ref.BooleanRef();
+            var facing = new Ref.ObjectRef<Direction>();
+            facing.element=Direction.SOUTH;
             withNBT.forEach((it) -> {
                 if(((IndexedBlock)it.getState().getBlock()).getRegistryIndex()== ((IndexedBlock)ModBlocks.PLACEHOLDER).getRegistryIndex()){
-                    it.setState(PartialBlockState.of(ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.LOWER)));
+                    facing.element=it.getState().getProperties().get(PlaceholderBlock.FACING);
+                    it.setState(PartialBlockState.of(ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.LOWER).setValue(HeraldControllerBlock.FACING, facing.element)));
                     it.setEntity(PartialCompoundNbt.of(new CompoundTag()));
                     pos.set(it.getPos()).move(Direction.UP);
                 }
@@ -42,14 +46,14 @@ public class HeraldFix {
             });
             withNBT.forEach((it) -> {
                 if(pos.equals(it.getPos())){
-                    it.setState(PartialBlockState.of(ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.UPPER)));
+                    it.setState(PartialBlockState.of(ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.UPPER).setValue(HeraldControllerBlock.FACING, facing.element)));
                     it.setEntity(PartialCompoundNbt.of(new CompoundTag()));
                     found.element=true;
                 }
             });
             if(!found.element){
                 withNBT.add(PartialTile.of(
-                        PartialBlockState.of(ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.UPPER)),
+                        PartialBlockState.of(ModBlocks.HERALD_CONTROLLER.defaultBlockState().setValue(HeraldControllerBlock.HALF, DoubleBlockHalf.UPPER).setValue(HeraldControllerBlock.FACING, facing.element)),
                 PartialCompoundNbt.of(new CompoundTag()),pos));
             }
         }
