@@ -37,6 +37,16 @@ public class MixinPlacementSettings implements ExtendedPlacementSettings {
         return mapper;
     }
 
+    @Override
+    public void resetTileMapper(){
+        var privateMapper = new TileMapper();
+        tileProcessors.forEach(processor -> {
+            privateMapper.addProcessor(processor);
+        });
+        mapper=privateMapper;
+
+    }
+
 
     @Inject(method = "addProcessor(Liskallia/vault/core/world/processor/Processor;)Liskallia/vault/core/world/template/PlacementSettings;",at = @At("HEAD"),remap = false)
     private void registerProcessor(Processor processor, CallbackInfoReturnable<Palette> cir){

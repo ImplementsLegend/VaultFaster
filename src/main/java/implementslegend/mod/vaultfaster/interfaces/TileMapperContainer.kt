@@ -7,4 +7,5 @@ import implementslegend.mod.vaultfaster.TileMapper
 * */
 interface TileMapperContainer {
     val tileMapper: TileMapper
+    fun resetTileMapper()
 }
