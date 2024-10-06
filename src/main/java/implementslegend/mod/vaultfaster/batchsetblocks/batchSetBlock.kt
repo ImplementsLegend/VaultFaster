@@ -88,15 +88,17 @@ fun LevelAccessor.placeTiles(blocks_: Stream<PartialTile>, result_: Any?) {
                         delayExecutor.execute { //no delay might be enough on slow computers
                             players().forEach { player ->
                                 val lc = getChunk(pos.x, pos.z) as LevelChunk
-                                (player as ServerPlayer).connection.send(
-                                    ClientboundLevelChunkWithLightPacket(
-                                        lc,
-                                        lightEngine,
-                                        null,
-                                        null,
-                                        false
+                                synchronized(lc) {
+                                    (player as ServerPlayer).connection.send(
+                                        ClientboundLevelChunkWithLightPacket(
+                                            lc,
+                                            lightEngine,
+                                            null,
+                                            null,
+                                            false
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
