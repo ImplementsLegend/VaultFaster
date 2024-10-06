@@ -10,6 +10,7 @@
         "DynamicStreamedTemplate",
         "EmptyStreamedTemplate",
         "FixObjectives",
+        "FixRaidAnimation",
         "HeraldFix",
         "JigsawRootAccessor",
         "JigsawStreamedTemplate",
