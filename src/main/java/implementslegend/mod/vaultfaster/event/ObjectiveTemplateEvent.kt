@@ -1,8 +1,7 @@
-package implementslegend.mod.vaultfaster
+package implementslegend.mod.vaultfaster.event
 
 import implementslegend.mod.vaultfaster.mixin.JigsawRootAccessor
 import iskallia.vault.block.HeraldControllerBlock
-import iskallia.vault.block.MonolithBlock
 import iskallia.vault.block.ObeliskBlock
 import iskallia.vault.core.event.CommonEvents
 import iskallia.vault.core.event.Event
@@ -29,7 +28,7 @@ data class ObjectiveTemplateData(var template:JigsawTemplate,val vault: Vault)
 * */
 
 
-object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent,ObjectiveTemplateData>(){
+object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent, ObjectiveTemplateData>(){
     init {
         CommonEvents.REGISTRY.add(this)
     }

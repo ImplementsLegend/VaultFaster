@@ -42,6 +42,7 @@
         "ProtoChunkAccessor",
         "ReferenceProcessorAccessor",
         "StaticStreamedTemplate",
+        "TemplateProcessorModifierPropertiesAccessor",
         "TileGroupsAccessor",
         "TreasureRoomFix",
         "VaultBypassMailbox"

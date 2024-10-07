@@ -1,5 +1,7 @@
 package implementslegend.mod.vaultfaster
 
+import implementslegend.mod.vaultfaster.event.TemplateConfigurationEvent
+import implementslegend.mod.vaultfaster.event.TemplateEventData
 import iskallia.vault.core.random.ChunkRandom
 import iskallia.vault.core.util.RegionPos
 import iskallia.vault.core.vault.Vault
@@ -26,6 +28,7 @@ class ConcurrentGridCache {
         map.compute(pos) { pos,currentWeak ->
             if(currentWeak==null || currentWeak.get().also { newValue=it }===null) {
                 val settings = PlacementSettings(ProcessorContext(vault, random)).setFlags(3)
+                TemplateConfigurationEvent.invoke(TemplateEventData(settings,vault, random, pos))
                 WeakReference(layout.getAt(vault, pos, random, settings)
                     .configure(
                         { parent: Template?, settings: PlacementSettings? ->

@@ -1,6 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.ObjectiveTemplateEvent;
+import implementslegend.mod.vaultfaster.event.ObjectiveTemplateEvent;
 import iskallia.vault.core.event.Event;
 import iskallia.vault.core.event.common.BlockSetEvent;
 import iskallia.vault.core.vault.Vault;

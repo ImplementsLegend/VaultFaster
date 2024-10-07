@@ -1,8 +1,9 @@
 package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.*;
-import implementslegend.mod.vaultfaster.batchsetblocks.BatchSetBlockKt;
 import implementslegend.mod.vaultfaster.batchsetblocks.BlocksToProtoSectionTask;
+import implementslegend.mod.vaultfaster.event.ObjectiveTemplateData;
+import implementslegend.mod.vaultfaster.event.ObjectiveTemplateEvent;
 import iskallia.vault.core.data.DataObject;
 import iskallia.vault.core.data.key.FieldKey;
 import iskallia.vault.core.event.Event;
@@ -15,7 +16,6 @@ import iskallia.vault.core.world.template.JigsawTemplate;
 import iskallia.vault.core.world.template.PlacementSettings;
 import iskallia.vault.core.world.template.Template;
 import iskallia.vault.init.ModBlocks;
-import kotlin.Unit;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,9 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static iskallia.vault.gear.item.VaultGearItem.random;
 
 @Mixin(VaultLayout.class)
 public abstract class MixinVaultLayout {
