@@ -17,9 +17,9 @@ import net.minecraftforge.registries.ForgeRegistry
 val BLOCKS by lazy {
     val data = (ForgeRegistries.BLOCKS as ForgeRegistry<Block>).values
 
-    val result = IdMapper<Block>(data.maxOf { (it as IndexedBlock).registryIndex }+1)
-    data.forEach {
-        result.addMapping(it,(it as IndexedBlock).registryIndex)
+    val result = IdMapper<Block>(data.count()/*data.maxOf { (it as IndexedBlock).registryIndex }+1*/)
+    data.forEachIndexed { index, it ->
+        result.addMapping(it,index)
     }
     result
 }
