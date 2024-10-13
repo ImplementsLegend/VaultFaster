@@ -42,7 +42,7 @@ public abstract class LazyStructureTemplate implements LazyObject {
     @Shadow private Set<ResourceLocation> tags;
     private AtomicReference<CompletableFuture<Unit>> initializationTask = new AtomicReference<>(CompletableFuture.completedFuture(Unit.INSTANCE));
 
-    private HashSet<ResourceLocation> preInitTags = new HashSet<>();
+    //private HashSet<ResourceLocation> preInitTags = new HashSet<>();
 
     private static ExecutorService LAZY_LOADING_EXECUTOR = Executors.newSingleThreadExecutor((runnable)->{
         var thread = new Thread(runnable);
@@ -73,7 +73,7 @@ public abstract class LazyStructureTemplate implements LazyObject {
                 } catch (Exception e){
                     e.printStackTrace();
                 }
-                tags.addAll(preInitTags);
+                //tags.addAll(preInitTags);
                 return Unit.INSTANCE;
             }, LAZY_LOADING_EXECUTOR);
         }else intTask = initializationTask.get();
@@ -93,12 +93,13 @@ public abstract class LazyStructureTemplate implements LazyObject {
     @Inject(method={"getEntities"},at = @At("HEAD"),remap = false)
     private void invokeLazyInit2(EntityPredicate filter, PlacementSettings settings, CallbackInfoReturnable<Iterator<PartialEntity>> cir){initializeIfNot();}
 
-    @Inject(method={"addTag"},at = @At("HEAD"),remap = false)
-    private void invokeLazyInit3(ResourceLocation tag, CallbackInfo ci){preInitTags.add(tag);}
+    /*
+    @Inject(method={"addTag"},at = @At("HEAD"),remap = false,cancellable = true)
+    private void invokeLazyInit3(ResourceLocation tag, CallbackInfo ci){preInitTags.add(tag);if(initializationTask.get()==null)ci.cancel();}
 
     @Inject(method={"hasTag"},at = @At("HEAD"),remap = false,cancellable = true)
     private void invokeLazyInit4(ResourceLocation tag, CallbackInfoReturnable<Boolean> cir){if(preInitTags.contains(tag))cir.setReturnValue(true); else initializeIfNot();}
 
     @Inject(method={"getTags"},at = @At("HEAD"),remap = false)
-    private void invokeLazyInit5(CallbackInfoReturnable<Iterator<ResourceLocation>> cir){initializeIfNot();}
+    private void invokeLazyInit5(CallbackInfoReturnable<Iterator<ResourceLocation>> cir){initializeIfNot();}*/
 }

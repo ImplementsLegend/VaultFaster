@@ -31,7 +31,12 @@ public class MixinPartialBlock implements IndexedBlock {
     public int getRegistryIndex(){
         if(id==null)regIdx=-666;
         if(regIdx==-69420){
-            regIdx= FixatedBlockIDsKt.getIdForBlock(((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getValue(this.id));
+            var block = ((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getValue(this.id);
+            if(block.getRegistryName()!=this.id) {
+                if (block.getRegistryName().equals(this.id)) this.id = block.getRegistryName();//resource location deduplication, not sure if it helps
+                else ;
+            }
+            regIdx= FixatedBlockIDsKt.getIdForBlock(block);
             if(regIdx==0 ) {
                 var resName = ((PartialBlockIDAccessor)this).getId();
                 if(!resName.getNamespace().equals("minecraft") && !resName.getPath().equals("air")) regIdx=-666;
