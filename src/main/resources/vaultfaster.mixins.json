@@ -13,6 +13,7 @@
         "HeraldFix",
         "JigsawRootAccessor",
         "JigsawStreamedTemplate",
+        "LazyStructureTemplate",
         "LevelChunkAccessor",
         "MeasurePerformance",
         "MixinBlockRegistryIndex",
