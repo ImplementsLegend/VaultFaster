@@ -60,8 +60,8 @@ public abstract class LazyStructureTemplate implements LazyObject {
         ((LazyObject)instance).setUninitialized();
     }
 
-    @Unique
-    private void initializeIfNot(){
+    @Override
+    public void initializeIfNot(){
         var intTask = new CompletableFuture<Unit>();
         if(initializationTask.compareAndSet(null,intTask)){
 

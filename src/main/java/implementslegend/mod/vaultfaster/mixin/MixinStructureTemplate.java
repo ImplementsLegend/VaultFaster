@@ -1,9 +1,6 @@
 package implementslegend.mod.vaultfaster.mixin;
 
-import implementslegend.mod.vaultfaster.interfaces.ExtendedPlacementSettings;
-import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
-import implementslegend.mod.vaultfaster.interfaces.StreamedTemplate;
-import implementslegend.mod.vaultfaster.interfaces.TileMapperContainer;
+import implementslegend.mod.vaultfaster.interfaces.*;
 import iskallia.vault.core.util.iterator.MappingIterator;
 import iskallia.vault.core.world.data.tile.PartialTile;
 import iskallia.vault.core.world.data.tile.TilePredicate;
@@ -42,11 +39,13 @@ public class MixinStructureTemplate implements StreamedTemplate {
     @NotNull
     @Override
     public Stream<PartialTile> getTileStream(@NotNull TilePredicate filter, @NotNull PlacementSettings settings) {
+        ((LazyObject)this).initializeIfNot();
         return ((List<PartialTile>)this.tiles.get(filter)).parallelStream().map((tile) -> tileMappingFunc(tile,filter,settings));
     }
 
     @Overwrite(remap = false)
     public Iterator<PartialTile> getTiles(TilePredicate filter, PlacementSettings settings) {
+        ((LazyObject)this).initializeIfNot();
         return new MappingIterator<PartialTile,PartialTile>(((List)this.tiles.get(filter)).iterator(), (PartialTile tile) -> tileMappingFunc(tile,filter,settings));
     }
 }
