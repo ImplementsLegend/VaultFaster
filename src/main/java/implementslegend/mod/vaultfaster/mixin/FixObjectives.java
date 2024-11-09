@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 * removal of CommonEvents.BLOCK_SET_EVENT caused objectives to stop working; this is a fix (but herald still doesn't work)
 *
 * */
-@Mixin({ScavengerObjective.class, LodestoneObjective.class, HeraldObjective.class, ObeliskObjective.class, MonolithObjective.class, CrakePedestalObjective.class, LegacyObeliskObjective.class, OfferingBossObjective.class, GridGatewayObjective.class})
+@Mixin({ScavengerObjective.class, LodestoneObjective.class, HeraldObjective.class, ObeliskObjective.class, MonolithObjective.class, CrakePedestalObjective.class, LegacyObeliskObjective.class, GridGatewayObjective.class})
 public class FixObjectives {
 
 

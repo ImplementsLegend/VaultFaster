@@ -88,7 +88,7 @@ public abstract class MixinVaultLayout {
 
 
     @Inject(method = "getAt",at = @At(value = "INVOKE", target = "Liskallia/vault/core/world/template/JigsawTemplate;getChildren()Ljava/util/List;",ordinal = 2),locals = LocalCapture.CAPTURE_FAILHARD,remap = false)
-    private void invokeObjectiveFixEvent(Vault vault, RegionPos region, RandomSource random, PlacementSettings settings, CallbackInfoReturnable<Template> cir, Template template, JigsawTemplate jigsaw, Iterator iterator, JigsawTemplate target, double probability){
+    private void invokeObjectiveFixEvent(Vault vault, RegionPos region, RandomSource random, PlacementSettings settings, CallbackInfoReturnable<Template> cir, VaultLayout.PieceType type, Template jigsawUncast, JigsawTemplate jigsaw, Iterator iterator, JigsawTemplate target, double probability){
         if(random.nextFloat() < probability && target!=null) {
             var data = new ObjectiveTemplateData(target, vault);
             ObjectiveTemplateEvent.INSTANCE.invoke(data);

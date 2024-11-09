@@ -153,7 +153,7 @@ dependencies {
     // If the group id is "net.minecraft" and the artifact id is one of ["client", "server", "joined"],
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation fg.deobf("blank:the_vault-1.18.2:3.15.2.3488")
+    implementation fg.deobf("blank:the_vault-1.18.2:3.15.2.3636")
     runtimeOnly    fg.deobf("blank:modular-routers-1.18.2:9.1.1-93")
     runtimeOnly    fg.deobf("blank:auxiliaryblocks:1.18.2-0.4.1")
     runtimeOnly    fg.deobf("blank:ferritecore:4.2.2-forge")

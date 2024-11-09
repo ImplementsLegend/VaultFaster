@@ -10,12 +10,12 @@ import java.util.List;
 
 @Mixin(TemplateProcessorModifier.Properties.class)
 public interface TemplateProcessorModifierPropertiesAccessor {
-    @Accessor
+    @Accessor(remap = false)
     TilePredicate getBlacklist();
 
-    @Accessor
+    @Accessor(remap = false)
     List<TileProcessor> getFullBlock();
 
-    @Accessor
+    @Accessor(remap = false)
     List<TileProcessor> getPartialBlock();
 }
