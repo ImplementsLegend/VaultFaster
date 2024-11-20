@@ -32,7 +32,7 @@
         "MixinStructureTemplate",
         "MixinTemplate",
         "MixinTemplateProcessorModifier",
-        "MixinVaultLayout",
+        "MixinVaultGridLayout",
         "MixinWeightedProcessor",
         "NoBiomeDecorations",
         "OctahedralGroupFix",

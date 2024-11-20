@@ -11,6 +11,7 @@ import iskallia.vault.core.event.common.NoiseGenerationEvent;
 import iskallia.vault.core.random.RandomSource;
 import iskallia.vault.core.util.RegionPos;
 import iskallia.vault.core.vault.Vault;
+import iskallia.vault.core.world.generator.layout.VaultGridLayout;
 import iskallia.vault.core.world.generator.layout.VaultLayout;
 import iskallia.vault.core.world.template.JigsawTemplate;
 import iskallia.vault.core.world.template.PlacementSettings;
@@ -30,8 +31,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
-@Mixin(VaultLayout.class)
-public abstract class MixinVaultLayout {
+@Mixin(VaultGridLayout.class)
+public abstract class MixinVaultGridLayout {
 
     @Shadow @Final public static FieldKey<Void> FILL_AIR;
 
