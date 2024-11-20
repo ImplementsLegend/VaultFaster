@@ -19,13 +19,14 @@ sealed class BlocksToSectionTask<T:ChunkAccess>(val chunk:T) {
         val section = chunk.getSection(sectionIdx)
         val tasks = ArrayList<()->Unit>(if(chunk is LevelChunk)4096 else 0)
         try {
-            section.states.acquire()
-            blocks.forEach { (position, newState) ->
-                if (
-                    position.x !in sectionXRange ||
-                    position.z !in sectionZRange ||
-                    position.y !in sectionHeightRange
-                ) return@forEach
+            //section.states.acquire()
+            synchronized( section.states) {
+                blocks.forEach { (position, newState) ->
+                    if (
+                        position.x !in sectionXRange ||
+                        position.z !in sectionZRange ||
+                        position.y !in sectionHeightRange
+                    ) return@forEach
 
                 if (newState.getLightEmission(chunk, position) > 0 && chunk is ProtoChunk) {
                     result.add(
@@ -46,6 +47,7 @@ sealed class BlocksToSectionTask<T:ChunkAccess>(val chunk:T) {
                 }
                 typeSpecificStuff(skipHeightmaps,newState, blockstate, position,section,tasks)
 
+                }
             }
         }finally {
             section.release()
