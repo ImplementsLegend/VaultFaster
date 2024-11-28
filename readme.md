@@ -1,7 +1,7 @@
 Vault Faster
 =====
 Minecraft Vault Hunters optimization mod with one goal: make vault world generation faster. \
-More than 4x performance improvement.
+More than 40x performance improvement.
 
 
 List of changes:
@@ -14,8 +14,7 @@ List of changes:
 - cached some values
 - [NoBiomeDecorations.java] removed biome decorations
 
-Performance on my system (# of chunks generated in 50 seconds):
-- unmodified, 5 cpu cores: 1330
-- unmodified, 2 cpu cores:  430
-- modified, 5 cpu cores:   5500
-- modified, 2 cpu cores:   2000
+Performance on my system (tunnel_span=0 (vault without tunnels, this is much more demanding)):
+- unmodified: 5 chunks per second
+- modified: 390 chunks per second
+- modified, no HT: 440 chunks per second
