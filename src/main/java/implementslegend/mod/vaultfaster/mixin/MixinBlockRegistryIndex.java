@@ -18,13 +18,10 @@ public class MixinBlockRegistryIndex implements IndexedBlock {
     private int registryIndex = -1;
     @Override
     public int getRegistryIndex() {
-        /*
         if(registryIndex<0){
-            registryIndex= ((ForgeRegistry)ForgeRegistries.BLOCKS).getID((BlockBehaviour) (Object)this);
+            registryIndex= FixatedBlockIDsKt.getIdForBlock((Block)(Object) this);
         }
         return registryIndex;
-        */
-        return FixatedBlockIDsKt.getIdForBlock((Block)(Object) this);
     }
 
     @Override
