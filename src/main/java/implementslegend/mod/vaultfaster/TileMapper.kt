@@ -105,7 +105,7 @@ class TileMapper() {
     }
 
     fun transform(transformTileProcessor: TransformTileProcessor, start: Boolean) {
-        addProcessor(transformTileProcessor,start)
+        transform=if(start) mergeTransforms(transformTileProcessor,transform) else mergeTransforms(transform,transformTileProcessor)
     }
 
     @JvmOverloads
