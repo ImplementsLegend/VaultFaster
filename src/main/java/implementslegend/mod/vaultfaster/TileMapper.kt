@@ -10,23 +10,14 @@ import iskallia.vault.core.Version
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt
 import iskallia.vault.core.world.data.tile.*
 import iskallia.vault.core.world.processor.ProcessorContext
-import iskallia.vault.core.world.processor.tile.BernoulliWeightedTileProcessor
-import iskallia.vault.core.world.processor.tile.LeveledTileProcessor
-import iskallia.vault.core.world.processor.tile.ReferenceTileProcessor
-import iskallia.vault.core.world.processor.tile.SpawnerElementTileProcessor
-import iskallia.vault.core.world.processor.tile.SpawnerTileProcessor
-import iskallia.vault.core.world.processor.tile.TemplateStackSpawnerProcessor
-import iskallia.vault.core.world.processor.tile.TemplateStackTileProcessor
-import iskallia.vault.core.world.processor.tile.TileProcessor
-import iskallia.vault.core.world.processor.tile.VaultLootTileProcessor
-import iskallia.vault.core.world.processor.tile.WeightedTileProcessor
+import iskallia.vault.core.world.processor.tile.*
 import iskallia.vault.init.ModBlocks
 import iskallia.vault.init.ModConfigs
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
+import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.registries.ForgeRegistries
-import java.util.concurrent.atomic.AtomicReferenceArray
 
 /*
 * Template processor multi hash map; maps block numerical id -> list of tile processors
@@ -43,6 +34,7 @@ class TileMapper() {
 
     //all processors for which numerical ids couldn't be determined
     val unconditional:TileProcessors = arrayListOf()
+    var transform = transformIdentity()
     /*
      * main table for storing all the mappings
      * idx: numerical id of block
@@ -63,8 +55,9 @@ class TileMapper() {
     * applies tile processors to a tile
     * */
     fun mapBlock(tile: PartialTile?, ctx: ProcessorContext, startIdx:Int=Int.MIN_VALUE):PartialTile? {
-        val idx = ((tile?:return null).state.block as IndexedBlock).registryIndex
-        var newTile:PartialTile =tile
+        if(tile===null)return null
+        var newTile:PartialTile? =if(startIdx==Int.MIN_VALUE) transform.process(tile,ctx)  else  tile
+        val idx = ((newTile?:return null).state.block as IndexedBlock).registryIndex
 
         val unconditionalMappings = unconditional
         val conditionalMappings = mappingsTiered.getOrNull(idx shr 8)?.getOrNull(idx and 0xff)?: emptyList()
@@ -77,24 +70,24 @@ class TileMapper() {
             if(unconditionalMappings[i1].index>conditionalMappings[i2].index){
 
                 newTile=conditionalMappings[i2].value.process(newTile,ctx)?:return null
-                if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2].index)
+                if(idx!=(newTile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2].index)
                 i2++
             }else{
 
                 newTile=unconditionalMappings[i1].value.process(newTile,ctx)?:return null
-                if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1].index)
+                if(idx!=(newTile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1].index)
                 i1++
             }
         }
         for (i2b in i2 until conditionalMappings.size){
             newTile=conditionalMappings[i2b].value.process(newTile,ctx)?:return null
-            if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2b].index)
+            if(idx!=(newTile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,conditionalMappings[i2b].index)
 
         }
 
         for (i1b in i1 until unconditionalMappings.size){
             newTile=unconditionalMappings[i1b].value.process(newTile,ctx)?:return null
-            if(idx!=(tile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1b].index)
+            if(idx!=(newTile.state.block as IndexedBlock).registryIndex) return mapBlock(newTile, ctx,unconditionalMappings[i1b].index)
 
         }
         return newTile
@@ -111,17 +104,29 @@ class TileMapper() {
         }!!
     }
 
+    fun transform(transformTileProcessor: TransformTileProcessor, start: Boolean) {
+        addProcessor(transformTileProcessor,start)
+    }
+
     @JvmOverloads
     fun addProcessor(processor: TileProcessor,start:Boolean=false){
+        if(processor is TranslateTileProcessor) return transform(processor.toTransformTileProcessor(), start)
+        if(processor is MirrorTileProcessor) return transform(processor.toTransformTileProcessor(), start)
+        if(processor is RotateTileProcessor) return transform(processor.toTransformTileProcessor(), start)
+
         try {
-            if (processor is SpawnerTileProcessor || processor is WeightedTileProcessor || processor is TemplateStackTileProcessor || processor is TemplateStackSpawnerProcessor) {
-                addProcessor((processor as ProcessorPredicateAccessor).predicate, processor,start=start)
-            } else if (processor is BernoulliWeightedTileProcessor) {
+            if (processor is BernoulliWeightedTileProcessor) {
                 addProcessor(processor.target, processor,start=start)
             } else if (processor is VaultLootTileProcessor) {
                 addProcessor(PartialBlock.of(ModBlocks.PLACEHOLDER), processor,start=start)
             } else if (processor is SpawnerElementTileProcessor) {
                 addProcessor(PartialBlock.of(ForgeRegistries.BLOCKS.getValue(ResourceLocation("ispawner","spawner"))), processor,start=start)
+            } else if (processor is JigsawTileProcessor) {
+                addProcessor(PartialBlock.of(Blocks.JIGSAW),processor,start=start)
+            } else if (processor is StructureVoidTileProcessor) {
+                addProcessor(PartialBlock.of(Blocks.STRUCTURE_VOID),processor,start=start)
+            } else if (processor is TargetTileProcessor<*>) {
+                addProcessor((processor as ProcessorPredicateAccessor).predicate, processor,start=start)
             } else if (processor is LeveledTileProcessor) {
                 addProcessor(LeveledPredicate(processor),processor,start=start)
             } else if(processor is ReferenceTileProcessor){
