@@ -18,4 +18,6 @@ public interface TemplateProcessorModifierPropertiesAccessor {
 
     @Accessor(remap = false)
     List<TileProcessor> getPartialBlock();
+
+   @Accessor(remap = false) TilePredicate getWhitelist();
 }
