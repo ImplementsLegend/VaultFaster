@@ -42,14 +42,11 @@ public abstract class FixRotateEntityProcessor {
             entity.setPos(this.transform(entity.getPos()));
             CompoundTag nbt = (CompoundTag) entity.getNbt().asWhole().orElse(null);
             if (nbt != null && nbt.contains("Rotation")) {
-                System.out.println("mirror: "+rotation);
                 ListTag rotation = nbt.getList("Rotation", 5);
                 float yaw = rotation.getFloat(0);
                 EntityType<?> type = (EntityType<?>)EntityType.by(nbt).orElse(EntityType.ARMOR_STAND);
                 Direction direction = Direction.from3DDataValue(nbt.getByte("Facing"));
-                System.out.println("old: "+direction);
                 Tuple<Float, Direction> result = this.transformHangingEntity(yaw, direction);
-                System.out.println("new: "+result.getB());
                 direction = (Direction) result.getB();
                 nbt.putByte("Facing", (byte) direction.get3DDataValue());
                 rotation.set(0, FloatTag.valueOf((Float) result.getA() - rotation.getFloat(0)));
