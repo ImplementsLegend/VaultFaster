@@ -40,16 +40,15 @@ public abstract class FixRotateEntityProcessor {
         if(GLASS_FRAME_ID.equals(entity.getId())) {
             entity.setBlockPos(this.transform(entity.getBlockPos()));
             entity.setPos(this.transform(entity.getPos()));
-            CompoundTag nbt = (CompoundTag) entity.getNbt().asWhole().orElse(null);
+            var nbt =  entity.getNbt().asWhole().orElse(null);
             if (nbt != null && nbt.contains("Rotation")) {
-                ListTag rotation = nbt.getList("Rotation", 5);
-                float yaw = rotation.getFloat(0);
-                EntityType<?> type = (EntityType<?>)EntityType.by(nbt).orElse(EntityType.ARMOR_STAND);
-                Direction direction = Direction.from3DDataValue(nbt.getByte("Facing"));
-                Tuple<Float, Direction> result = this.transformHangingEntity(yaw, direction);
-                direction = (Direction) result.getB();
+                var rotation = nbt.getList("Rotation", 5);
+                var yaw = rotation.getFloat(0);
+                var direction = Direction.from3DDataValue(nbt.getByte("Facing"));
+                var result = this.transformHangingEntity(yaw, direction);
+                direction = result.getB();
                 nbt.putByte("Facing", (byte) direction.get3DDataValue());
-                rotation.set(0, FloatTag.valueOf((Float) result.getA() - rotation.getFloat(0)));
+                rotation.set(0, FloatTag.valueOf( result.getA() - rotation.getFloat(0)));
             }
 
             cir.setReturnValue(entity);
