@@ -2,10 +2,10 @@ package implementslegend.mod.vaultfaster
 
 import implementslegend.mod.vaultfaster.interfaces.CachedPaletteContainer
 import implementslegend.mod.vaultfaster.interfaces.IndexedBlock
-import implementslegend.mod.vaultfaster.mixin.PredicateIdAccessor
-import implementslegend.mod.vaultfaster.mixin.ProcessorPredicateAccessor
-import implementslegend.mod.vaultfaster.mixin.ReferenceProcessorAccessor
-import implementslegend.mod.vaultfaster.mixin.TileGroupsAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.PredicateIdAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.ProcessorPredicateAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.ReferenceProcessorAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.TileGroupsAccessor
 import iskallia.vault.core.Version
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt
 import iskallia.vault.core.world.data.tile.*

@@ -17,7 +17,6 @@ public class MixinPartialBlockState {
 
     @Shadow private PartialBlock block;
 
-
     @Overwrite(remap = false)
     public boolean is(Block b){
         return ((IndexedBlock)b).getRegistryIndex() == ((IndexedBlock)block).getRegistryIndex();

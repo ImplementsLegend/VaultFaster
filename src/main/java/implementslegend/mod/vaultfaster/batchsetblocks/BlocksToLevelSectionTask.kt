@@ -1,7 +1,7 @@
 package implementslegend.mod.vaultfaster.batchsetblocks
 
-import implementslegend.mod.vaultfaster.mixin.ChunkAccessAccessor
-import implementslegend.mod.vaultfaster.mixin.LevelChunkAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.ChunkAccessAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.LevelChunkAccessor
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.EntityBlock

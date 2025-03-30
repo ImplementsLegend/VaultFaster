@@ -69,24 +69,16 @@ public abstract class MixinVaultGridLayout {
 
 
     /*calls event to change template for objective placeholder since the old method is removed*/
-    /*
-    @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z",ordinal = 0),remap = false)
-    boolean invokeObjectiveFixEvent(List instance, Object e){
-        var data = new ObjectiveTemplateData((JigsawTemplate) e);
-        ObjectiveTemplateEvent.INSTANCE.invoke(data);
-        return instance.add(data.getTemplate());
-    }*/
 
     @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z",ordinal = 0),remap = false)
-    boolean invokeObjectiveFixEvent(List instance, Object e){
+    boolean deleteOriginalObjectiveAdd(List instance, Object e){
         return true;
     }
 
     @Redirect(method = "getAt",at = @At(value = "INVOKE", target = "Liskallia/vault/core/random/RandomSource;nextFloat()F"),remap = false)
-    float invokeObjectiveFixEvent(RandomSource instance){
+    float deleteOriginalObjectiveCondition(RandomSource instance){
         return 1f;
     }
-
 
     @Inject(method = "getAt",at = @At(value = "INVOKE", target = "Liskallia/vault/core/world/template/JigsawTemplate;getChildren()Ljava/util/List;",ordinal = 2),locals = LocalCapture.CAPTURE_FAILHARD,remap = false)
     private void invokeObjectiveFixEvent(Vault vault, RegionPos region, RandomSource random, PlacementSettings settings, CallbackInfoReturnable<Template> cir, VaultLayout.PieceType type, Template jigsawUncast, JigsawTemplate jigsaw, Iterator iterator, JigsawTemplate target, double probability){

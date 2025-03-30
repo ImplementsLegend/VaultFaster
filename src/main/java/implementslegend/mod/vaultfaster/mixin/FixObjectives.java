@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
 
-
 /*
 * removal of CommonEvents.BLOCK_SET_EVENT caused objectives to stop working; this is a fix (but herald still doesn't work)
 *
@@ -22,23 +21,15 @@ import java.util.function.Consumer;
 @Mixin({ScavengerObjective.class, LodestoneObjective.class, HeraldObjective.class, ObeliskObjective.class, MonolithObjective.class, CrakePedestalObjective.class, LegacyObeliskObjective.class, GridGatewayObjective.class})
 public class FixObjectives {
 
-
     /*
     * replaces old block set event with new objective template event
     * */
     @Redirect(method = "initServer",at = @At(value = "INVOKE", target = "Liskallia/vault/core/event/common/BlockSetEvent;register(Ljava/lang/Object;Ljava/util/function/Consumer;)Liskallia/vault/core/event/Event;"),remap = false)
-    private Event fixObjective(BlockSetEvent instance, Object o, Consumer consumer){
-        /*var objEvent = ObjectiveTemplateEventKt.getOBJECTIVE_TEMPLATE_EVENT();
-        objEvent.registerObjectiveTemplate((Objective)(Object)this);
-        return objEvent;*/
+    private Event unregisterBlockSet(BlockSetEvent instance, Object o, Consumer consumer){
         return null;
     }
 
     @Inject(method = "initServer",at = @At("HEAD"),remap = false)
-    private void fixObjective2(VirtualWorld world, Vault vault, CallbackInfo ci){
-
-        ObjectiveTemplateEvent.INSTANCE.registerObjectiveTemplate((Objective)(Object)this,vault);
-
-    }
+    private void registerObjectiveTemplate(VirtualWorld world, Vault vault, CallbackInfo ci){ ObjectiveTemplateEvent.INSTANCE.registerObjectiveTemplate((Objective)(Object)this,vault); }
 
 }

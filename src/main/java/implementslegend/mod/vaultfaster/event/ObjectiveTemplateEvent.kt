@@ -1,6 +1,6 @@
 package implementslegend.mod.vaultfaster.event
 
-import implementslegend.mod.vaultfaster.mixin.JigsawRootAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.JigsawRootAccessor
 import iskallia.vault.block.HeraldControllerBlock
 import iskallia.vault.block.ObeliskBlock
 import iskallia.vault.core.event.CommonEvents

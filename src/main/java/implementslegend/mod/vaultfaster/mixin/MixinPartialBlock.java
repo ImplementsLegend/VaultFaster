@@ -2,6 +2,7 @@ package implementslegend.mod.vaultfaster.mixin;
 
 import implementslegend.mod.vaultfaster.FixatedBlockIDsKt;
 import implementslegend.mod.vaultfaster.interfaces.IndexedBlock;
+import implementslegend.mod.vaultfaster.mixin.accessors.PartialBlockIDAccessor;
 import iskallia.vault.core.world.data.tile.PartialBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -34,7 +35,6 @@ public class MixinPartialBlock implements IndexedBlock {
             var block = ((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getValue(this.id);
             if(block.getRegistryName()!=this.id) {
                 if (block.getRegistryName().equals(this.id)) this.id = block.getRegistryName();//resource location deduplication, not sure if it helps
-                else ;
             }
             regIdx= FixatedBlockIDsKt.getIdForBlock(block);
             if(regIdx==0 ) {

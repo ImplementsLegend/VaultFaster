@@ -1,7 +1,7 @@
 package implementslegend.mod.vaultfaster.batchsetblocks
 
 import implementslegend.mod.vaultfaster.GENERATOR_EXECUTOR
-import implementslegend.mod.vaultfaster.mixin.ProtoChunkAccessor
+import implementslegend.mod.vaultfaster.mixin.accessors.ProtoChunkAccessor
 import iskallia.vault.VaultMod
 import iskallia.vault.core.world.data.tile.PartialTile
 import iskallia.vault.init.ModBlocks
@@ -14,7 +14,6 @@ import net.minecraft.server.level.WorldGenRegion
 import net.minecraft.world.Clearable
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.CommandBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
