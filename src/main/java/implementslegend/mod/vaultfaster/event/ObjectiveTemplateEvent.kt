@@ -77,9 +77,9 @@ object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent, ObjectiveTemplateDat
         dynamicTemplateOf(
             BlockPos(0,0,0) to ModBlocks.GRID_GATEWAY.defaultBlockState()
         )
-    val OFFERING_BOSS_OBJECTIVE_TEMPLATE =
+    val RUNE_BOSS_OBJECTIVE_TEMPLATE =
         dynamicTemplateOf(
-            BlockPos(0,0,0) to ModBlocks.OFFERING_PILLAR.defaultBlockState()
+            BlockPos(0,0,0) to ModBlocks.RUNE_PILLAR.defaultBlockState()
         )
 
     private val EMPTY_TEMPLATE = dynamicTemplateOf(*emptyArray<PartialTile>())
@@ -109,7 +109,7 @@ object ObjectiveTemplateEvent:Event<ObjectiveTemplateEvent, ObjectiveTemplateDat
             is CrakePedestalObjective -> CRAKE_OBJECTIVE_TEMPLATE
             is LodestoneObjective -> LODESTONE_OBJECTIVE_TEMPLATE
             is GridGatewayObjective -> GRID_GATEWAY_OBJECTIVE_TEMPLATE
-            is OfferingBossObjective -> OFFERING_BOSS_OBJECTIVE_TEMPLATE
+            is RuneBossObjective -> RUNE_BOSS_OBJECTIVE_TEMPLATE
             is HeraldObjective -> HERALD_OBJECTIVE_TEMPLATE//does not work for herald
             else -> null
         }
