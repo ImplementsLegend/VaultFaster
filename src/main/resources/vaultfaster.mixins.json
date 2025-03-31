@@ -29,7 +29,6 @@
         "accessors.ProtoChunkAccessor",
         "accessors.ReferenceProcessorAccessor",
         "accessors.TemplateProcessorModifierPropertiesAccessor",
-        "accessors.TileGroupsAccessor",
         "concurrency.ConcurrentGridGenerator",
         "concurrency.VaultBypassMailbox",
         "modifier.MixinCascade",
