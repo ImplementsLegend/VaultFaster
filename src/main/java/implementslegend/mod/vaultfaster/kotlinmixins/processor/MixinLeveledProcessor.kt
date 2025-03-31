@@ -14,7 +14,7 @@ class KMixinLeveledProcessor(val levels: () -> Map<Int, TileProcessor>) {
 
     val table by lazy {
         val map = levels().toSortedMap()
-        Array(ModConfigs.LEVELS_META.maxLevel + 1){map.headMap(it).run { try{get(lastKey())}catch(e:java.util.NoSuchElementException){null} }}
+        Array(ModConfigs.LEVELS_META.maxLevel + 1){map.headMap(it+1).run { try{get(lastKey())}catch(e:java.util.NoSuchElementException){null} }}
     }
 
     val cached = CachedValue(-1 to PhantomReference<Vault>(null,null))
