@@ -2,10 +2,10 @@ package implementslegend.mod.vaultfaster
 
 import implementslegend.mod.vaultfaster.interfaces.CachedPaletteContainer
 import implementslegend.mod.vaultfaster.interfaces.IndexedBlock
+import implementslegend.mod.vaultfaster.mixin.accessors.PartialBlockIDAccessor
 import implementslegend.mod.vaultfaster.mixin.accessors.PredicateIdAccessor
 import implementslegend.mod.vaultfaster.mixin.accessors.ProcessorPredicateAccessor
 import implementslegend.mod.vaultfaster.mixin.accessors.ReferenceProcessorAccessor
-import implementslegend.mod.vaultfaster.mixin.accessors.TileGroupsAccessor
 import iskallia.vault.core.Version
 import iskallia.vault.core.world.data.entity.PartialCompoundNbt
 import iskallia.vault.core.world.data.tile.*
@@ -202,8 +202,8 @@ fun getIndices(pred:TilePredicate):Sequence<Int>{
 
         }
         is PartialBlockGroup->{
-            val key = (pred as PredicateIdAccessor).id
-            (ModConfigs.TILE_GROUPS as TileGroupsAccessor).groups[key]?.asSequence()?.flatMap ( ::getIndices )?: emptySequence()
+            val key = pred.id
+            ModConfigs.TILE_GROUPS.groups[key]?.asSequence()?.flatMap ( ::getIndices )?: emptySequence()
 
         }
         is PartialTile->{
