@@ -1,5 +1,7 @@
 Vault Faster
 =====
+### In VaultHunters 3.18.2, 99% of changes were cop- \*cough\* \*cough\* *integrated* into the base mod so there's no longer any need for this mod.
+
 Minecraft Vault Hunters optimization mod with one goal: make vault world generation faster. \
 More than 40x performance improvement.
 
